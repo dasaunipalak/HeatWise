@@ -1,0 +1,23 @@
+{
+  "city": "Phoenix, AZ",
+  "timeRange": "Last 24h",
+  "layers": [
+    { "id": "surface_temp", "name": "Surface Temperature", "color": "#ef4444", "active": true },
+    { "id": "ndvi_veg", "name": "NDVI Vegetation", "color": "#22c55e", "active": true },
+    { "id": "uhi_index", "name": "Urban Heat Island", "color": "#fec84b", "active": false },
+    { "id": "wind_corridors", "name": "Wind Corridors", "color": "#b2ddff", "active": false },
+    { "id": "surface_albedo", "name": "Surface Albedo", "color": "#d3bdfa", "active": false }
+  ],
+  "insights": {
+    "surfaceTemp": { "value": "41.2°C", "subtext": "+2.4° above avg" },
+    "ndviScore": { "value": "0.22", "subtext": "Low vegetation" },
+    "uhiIndex": { "value": "+5.1°C", "subtext": "Urban vs rural" },
+    "heatZones": { "value": "7 active", "subtext": "3 critical" }
+  },
+  "vegetation": [
+    { "area": "Indira Nagar", "status": "Moderate", "score": 45, "color": "green" },
+    { "area": "Gomti Nagar", "status": "Moderate", "score": 35, "color": "orange" },
+    { "area": "Hazratganj", "status": "Low", "score": 25, "color": "red" },
+    { "area": "Chowk / Alambagh", "status": "Critical", "score": 10, "color": "red" }
+  ]
+}
