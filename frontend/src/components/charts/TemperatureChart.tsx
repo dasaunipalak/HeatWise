@@ -85,28 +85,29 @@ export default function TemperatureChart() {
         ticks: {
           color: '#94a3b8',
           font: {
-            size: 9,
-            family: 'monospace',
+            size: 9.5,
+            family: 'var(--font-inter), sans-serif',
+            weight: 'bold' as const,
           },
-          padding: 8,
+          padding: 6,
         },
       },
       y: {
         grid: {
-          color: '#f1f5f9',
-          drawBorder: false,
+          color: '#f8fafc',
           tickLength: 0,
         },
         ticks: {
           color: '#94a3b8',
           font: {
-            size: 9,
-            family: 'monospace',
+            size: 9.5,
+            family: 'var(--font-inter), sans-serif',
+            weight: 'bold' as const,
           },
           stepSize: 15,
           max: 60,
           min: 0,
-          padding: 8,
+          padding: 6,
         },
         position: 'left' as const,
         border: {
