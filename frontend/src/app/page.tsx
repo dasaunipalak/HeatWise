@@ -10,15 +10,17 @@ export default function Dashboard() {
   const [rightOpen, setRightOpen] = useState(true);
 
   return (
-    <>
+    <div className="flex h-screen w-screen overflow-hidden">
       <LeftSidebar isOpen={leftOpen} />
-      <MapArea 
-        leftOpen={leftOpen} 
-        rightOpen={rightOpen} 
-        onToggleLeft={() => setLeftOpen(!leftOpen)} 
-        onToggleRight={() => setRightOpen(!rightOpen)} 
+
+      <MapArea
+        leftOpen={leftOpen}
+        rightOpen={rightOpen}
+        onToggleLeft={() => setLeftOpen(!leftOpen)}
+        onToggleRight={() => setRightOpen(!rightOpen)}
       />
+
       <RightSidebar isOpen={rightOpen} />
-    </>
+    </div>
   );
 }
