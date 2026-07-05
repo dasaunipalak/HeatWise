@@ -2,8 +2,8 @@ import joblib
 import pandas as pd
 import rasterio
 from pathlib import Path
-BASE_DIR = Path(_file_).resolve().parent.parent
-MODEL_PATH = BASE_DIR / "data" / "lucknow_heat_model.pkl"
+BASE_DIR = Path(__file__).resolve().parent.parent
+MODEL_PATH = BASE_DIR / "data" / "india_heat_model.pkl"
 CSV_PATH = BASE_DIR / "data" / "lucknow_static_fabric.csv"
 TIFF_PATH = BASE_DIR / "data" / "Lucknow_Training_v7.tif"
 
