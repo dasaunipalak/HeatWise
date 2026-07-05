@@ -1,9 +1,11 @@
 'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { MapContainer, TileLayer } from "react-leaflet";
-import { useMap } from "react-leaflet";
-import { useEffect } from "react";
+import dynamic from "next/dynamic";
+
+const LeafletMap = dynamic(() => import("./LeafletMap"), {
+  ssr: false,
+});
 
 interface MapAreaProps {
   leftOpen?: boolean;
@@ -12,43 +14,12 @@ interface MapAreaProps {
   onToggleRight?: () => void;
 }
 
-function ResizeMap({
-  leftOpen,
-  rightOpen,
-}: {
-  leftOpen: boolean;
-  rightOpen: boolean;
-}) {
-  const map = useMap();
-
-  useEffect(() => {
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 300);
-  }, [leftOpen, rightOpen, map]);
-
-  return null;
-}
 
 export default function MapArea({ leftOpen = true, rightOpen = true, onToggleLeft, onToggleRight }: MapAreaProps) {
   return (
     <main className="flex-1 relative bg-[#f2e7d7] overflow-hidden flex flex-col z-10 select-none transition-all duration-300">
       <div className="absolute inset-x-0 top-14 bottom-0 z-0">
-        <MapContainer
-          center={[26.8467, 80.9462]}
-          zoom={12}
-          className="h-full w-full"
-        >
-          <ResizeMap
-            leftOpen={leftOpen}
-            rightOpen={rightOpen}
-          />
-
-          <TileLayer
-            attribution="&copy; OpenStreetMap contributors"
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-        </MapContainer>
+        <LeafletMap />
       </div>
 
       {/* Slider Left Arrow */}
