@@ -1,6 +1,9 @@
 'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapContainer, TileLayer } from "react-leaflet";
+import { useMap } from "react-leaflet";
+import { useEffect } from "react";
 
 interface MapAreaProps {
   leftOpen?: boolean;
@@ -9,83 +12,47 @@ interface MapAreaProps {
   onToggleRight?: () => void;
 }
 
+function ResizeMap({
+  leftOpen,
+  rightOpen,
+}: {
+  leftOpen: boolean;
+  rightOpen: boolean;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 300);
+  }, [leftOpen, rightOpen, map]);
+
+  return null;
+}
+
 export default function MapArea({ leftOpen = true, rightOpen = true, onToggleLeft, onToggleRight }: MapAreaProps) {
   return (
-    <main className="flex-1 relative bg-[#f2e7d7] overflow-hidden flex flex-col pt-14 z-10 select-none transition-all duration-300">
-      
-      {/* Grid Mockup Background */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-80"
-        style={{
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.75) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(255,255,255,0.75) 1.5px, transparent 1.5px)',
-          backgroundSize: '100px 100px',
-        }}
-      />
+    <main className="flex-1 relative bg-[#f2e7d7] overflow-hidden flex flex-col z-10 select-none transition-all duration-300">
+      <div className="absolute inset-x-0 top-14 bottom-0 z-0">
+        <MapContainer
+          center={[26.8467, 80.9462]}
+          zoom={12}
+          className="h-full w-full"
+        >
+          <ResizeMap
+            leftOpen={leftOpen}
+            rightOpen={rightOpen}
+          />
 
-      {/* Simulated map overlays to visually match Figma map */}
-      <div className="absolute top-[18%] left-[0%] w-[35%] h-[12%] bg-[#86efac]/60 border-b border-r border-white/40"></div>
-      <div className="absolute top-[18%] left-[35%] w-[25%] h-[12%] bg-[#f87171]/70 border-b border-r border-white/40"></div>
-      <div className="absolute top-[18%] left-[60%] w-[40%] h-[12%] bg-[#fdba74]/70 border-b border-r border-white/40"></div>
-      
-      {/* Gomti River area and overlay */}
-      <div className="absolute top-[30%] left-[0%] w-[100%] h-[20%] bg-[#F03C3C]/65 border-b border-white/40 flex items-center justify-center">
-        {/* River blue strip */}
-        <div className="absolute left-0 right-0 h-6 bg-[#5898F6]/40 border-y border-white/30 backdrop-blur-[0.5px]"></div>
+          <TileLayer
+            attribution="&copy; OpenStreetMap contributors"
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+        </MapContainer>
       </div>
-      <div className="absolute top-[30%] left-[35%] w-[25%] h-[20%] bg-[#b91c1c]/60 mix-blend-multiply border-b border-white/40"></div>
-      
-      <div className="absolute top-[50%] left-[0%] w-[45%] h-[22%] bg-[#86efac]/70 border-b border-r border-white/40"></div>
-      <div className="absolute top-[50%] left-[45%] w-[55%] h-[22%] bg-[#fde047]/60 border-b border-white/40"></div>
-      
-      <div className="absolute top-[72%] left-[0%] w-[100%] h-[28%] bg-[#fde047]/50"></div>
-      <div className="absolute top-[72%] left-[30%] w-[40%] h-[28%] bg-[#b91c1c]/10 mix-blend-multiply"></div>
-
-      {/* Concentric Circle indicators */}
-      {/* Aminabad Hotspot */}
-      <div className="absolute top-[50%] left-[33%] flex items-center justify-center z-20">
-        <span className="absolute inline-flex h-8 w-8 rounded-full bg-[#ED4E4E]/30 animate-pulse"></span>
-        <span className="absolute inline-flex h-5 w-5 rounded-full bg-[#ED4E4E]/40 border border-white/40"></span>
-        <span className="relative rounded-full h-2 w-2 bg-[#ED4E4E] shadow-[0_1px_3px_rgba(0,0,0,0.3)]"></span>
-      </div>
-
-      {/* Alambagh Hotspot */}
-      <div className="absolute top-[71%] left-[27%] flex items-center justify-center z-20">
-        <span className="absolute inline-flex h-8 w-8 rounded-full bg-[#ED4E4E]/30 animate-pulse"></span>
-        <span className="absolute inline-flex h-5 w-5 rounded-full bg-[#ED4E4E]/40 border border-white/40"></span>
-        <span className="relative rounded-full h-2 w-2 bg-[#ED4E4E] shadow-[0_1px_3px_rgba(0,0,0,0.3)]"></span>
-      </div>
-
-      {/* Building Mockups footprint overlay in Hazratganj */}
-      <div className="absolute top-[46%] left-[40%] grid grid-cols-4 gap-1 opacity-[0.35] pointer-events-none z-20">
-        <div className="w-5 h-5 bg-[#475569] rounded-[2px] shadow-sm"></div>
-        <div className="w-6 h-5 bg-[#475569] rounded-[2px] shadow-sm"></div>
-        <div className="w-4 h-5 bg-[#475569] rounded-[2px] shadow-sm"></div>
-        <div className="w-7 h-5 bg-[#475569] rounded-[2px] shadow-sm"></div>
-        <div className="w-6 h-4 bg-[#475569] rounded-[2px] shadow-sm"></div>
-        <div className="w-5 h-4 bg-[#475569] rounded-[2px] shadow-sm"></div>
-        <div className="w-6 h-4 bg-[#475569] rounded-[2px] shadow-sm"></div>
-        <div className="w-4 h-4 bg-[#475569] rounded-[2px] shadow-sm"></div>
-      </div>
-
-      {/* Map Labels */}
-      <span className="absolute top-[32%] left-[22%] text-slate-800/80 font-bold text-[8px] tracking-wide bg-white/45 px-1 rounded shadow-[0_1px_1px_rgba(0,0,0,0.02)]">Mahanagar</span>
-      <span className="absolute top-[32%] left-[41%] text-slate-800/90 font-bold text-[8.5px] tracking-wide bg-white/45 px-1 rounded shadow-[0_1px_1px_rgba(0,0,0,0.02)]">Aliganj</span>
-      <span className="absolute top-[30%] left-[58%] text-slate-800/80 font-bold text-[8px] tracking-wide bg-white/45 px-1 rounded shadow-[0_1px_1px_rgba(0,0,0,0.02)]">Indira Nagar</span>
-      
-      <span className="absolute top-[41%] left-[45%] text-slate-800/70 font-extrabold text-[9px] tracking-widest uppercase z-20 select-none">Gomti River</span>
-      
-      <span className="absolute top-[51%] left-[31.5%] text-slate-800 font-bold text-[8px] bg-white/80 px-1 py-0.5 rounded shadow-sm border border-slate-200/50 z-20">Aminabad</span>
-      <div className="absolute top-[50%] left-[42.5%] bg-[#F05A28]/90 border border-[#F05A28] text-white font-bold text-[9px] px-2 py-0.5 rounded shadow-md z-20 drop-shadow-sm select-none">
-        Hazratganj
-      </div>
-      <span className="absolute top-[51%] left-[58%] text-slate-800/80 font-bold text-[8px] tracking-wide bg-white/45 px-1 rounded shadow-[0_1px_1px_rgba(0,0,0,0.02)]">Gomti Nagar</span>
-      
-      <span className="absolute top-[72%] left-[23.5%] text-slate-800 font-bold text-[8px] bg-white/80 px-1 py-0.5 rounded shadow-sm border border-slate-200/50 z-20">Alambagh</span>
-      <span className="absolute top-[71%] left-[48%] text-slate-800/80 font-bold text-[8px] tracking-wide bg-white/45 px-1 rounded shadow-[0_1px_1px_rgba(0,0,0,0.02)]">Rajajipuram</span>
-      <span className="absolute top-[71%] left-[68%] text-slate-800/80 font-bold text-[8px] tracking-wide bg-white/45 px-1 rounded shadow-[0_1px_1px_rgba(0,0,0,0.02)]">South City</span>
 
       {/* Slider Left Arrow */}
-      <button 
+      <button
         onClick={onToggleLeft}
         className="absolute left-[-1px] top-[50%] -translate-y-1/2 w-[22px] h-[48px] rounded-r-[12px] rounded-l-none bg-white text-slate-500 flex items-center justify-center shadow-[3px_0_5px_rgba(0,0,0,0.04)] hover:bg-slate-50 transition-colors border border-slate-200 border-l-0 z-30 cursor-pointer pr-[2px]"
       >
@@ -93,7 +60,7 @@ export default function MapArea({ leftOpen = true, rightOpen = true, onToggleLef
       </button>
 
       {/* Slider Right Arrow */}
-      <button 
+      <button
         onClick={onToggleRight}
         className="absolute right-[-1px] top-[50%] -translate-y-1/2 w-[22px] h-[48px] rounded-l-[12px] rounded-r-none bg-white text-slate-500 flex items-center justify-center shadow-[-3px_0_5px_rgba(0,0,0,0.04)] hover:bg-slate-50 transition-colors border border-slate-200 border-r-0 z-30 cursor-pointer pl-[2px]"
       >
