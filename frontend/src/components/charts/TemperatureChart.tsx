@@ -34,7 +34,7 @@ export default function TemperatureChart() {
     getChartData().then((res) => setData(res as ChartData));
   }, []);
 
-  if (!data) return <div className="h-[140px] flex items-center justify-center text-xs text-slate-400">Loading...</div>;
+  if (!data) return <div className="h-[120px] flex items-center justify-center text-[10px] text-slate-400">Loading...</div>;
 
   const chartData = {
     labels: data.labels,
@@ -42,8 +42,8 @@ export default function TemperatureChart() {
       {
         label: 'Today',
         data: data.today,
-        borderColor: '#ea580c', // Orange
-        backgroundColor: 'rgba(234, 88, 12, 0.05)',
+        borderColor: '#F05A28', // Orange
+        backgroundColor: 'rgba(240, 90, 40, 0.05)',
         borderWidth: 2,
         fill: true,
         tension: 0.4,
@@ -53,7 +53,7 @@ export default function TemperatureChart() {
       {
         label: '30-day avg',
         data: data.avg30Day,
-        borderColor: '#94a3b8', // Slate-400
+        borderColor: '#8DA2C0', // Slate-400
         borderWidth: 1.5,
         borderDash: [4, 4],
         tension: 0.4,
@@ -85,9 +85,9 @@ export default function TemperatureChart() {
         ticks: {
           color: '#94a3b8',
           font: {
-            size: 9.5,
-            family: 'var(--font-inter), sans-serif',
-            weight: 'bold' as const,
+            size: 9,
+            family: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+            weight: 500,
           },
           padding: 6,
         },
@@ -100,9 +100,9 @@ export default function TemperatureChart() {
         ticks: {
           color: '#94a3b8',
           font: {
-            size: 9.5,
-            family: 'var(--font-inter), sans-serif',
-            weight: 'bold' as const,
+            size: 9,
+            family: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+            weight: 500,
           },
           stepSize: 15,
           max: 60,
@@ -129,7 +129,7 @@ export default function TemperatureChart() {
   };
 
   return (
-    <div className="h-[140px] w-full">
+    <div className="h-[120px] w-full">
       <Line data={chartData} options={options} />
     </div>
   );
