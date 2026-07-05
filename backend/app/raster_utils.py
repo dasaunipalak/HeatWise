@@ -1,34 +1,54 @@
-from app.model_loader import raster
+import os
+from dotenv import load_dotenv
+import ee
 
+load_dotenv() 
+PROJECT_ID = os.getenv('GEE_PROJECT_ID')
 
-def get_pixel_from_coordinates(latitude, longitude):
-    """
-    Convert latitude and longitude into raster pixel.
-    """
-    row, col = raster.index(longitude, latitude)
-    return row, col
-
-
-def get_band_value(band_number, row, col):
-    """
-    Read one value from a raster band.
-    """
-    band = raster.read(band_number)
-    return band[row, col]
-
+try:
+    ee.Initialize(project=PROJECT_ID)
+except Exception:
+    ee.Authenticate()
+    ee.Initialize(project=PROJECT_ID)
 
 def get_static_features(latitude, longitude):
-    """
-    Returns all static features required by the ML model.
-    """
+   
+    point = ee.Geometry.Point([longitude, latitude])
 
-    row, col = get_pixel_from_coordinates(latitude, longitude)
 
-    return {
-        "NDVI": float(get_band_value(2, row, col)),
-        "NDBI": float(get_band_value(3, row, col)),
-        "NDWI": float(get_band_value(4, row, col)),
-        "LULC_Map": int(get_band_value(5, row, col)),
-        "Elevation": float(get_band_value(9, row, col)),
-        "Avg_Radiation": float(get_band_value(10, row, col)),
+    s2 = ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED") \
+           .filterBounds(point) \
+           .filterDate('2026-01-01', '2026-07-05') \
+           .median()
+    
+
+    dem = ee.Image("USGS/SRTMGL1_003")
+    
+
+    lulc = ee.ImageCollection("GOOGLE/DYNAMICWORLD/V1") \
+             .filterBounds(point) \
+             .median()
+
+
+    rad = ee.ImageCollection("ECMWF/ERA5_LAND/DAILY_AGGR") \
+            .select('surface_solar_radiation_downwards_sum') \
+            .filterDate('2026-06-01', '2026-07-05') \
+            .median()
+
+
+    def get_val(img, band_name):
+        res = img.reduceRegion(reducer=ee.Reducer.first(), geometry=point, scale=30).get(band_name)
+        return res.getInfo()
+
+  
+    features = {
+        "NDVI": float(get_val(s2.normalizedDifference(['B8', 'B4']), 'nd') or 0),
+        "NDBI": float(get_val(s2.normalizedDifference(['B11', 'B8']), 'nd') or 0),
+        "NDWI": float(get_val(s2.normalizedDifference(['B3', 'B8']), 'nd') or 0),
+        "LULC_Map": int(get_val(lulc, 'label') or 0),
+        "Elevation": float(get_val(dem, 'elevation') or 0),
+        "Avg_Radiation": float(get_val(rad, 'surface_solar_radiation_downwards_sum') or 0),
+        
     }
+    
+    return features
