@@ -2,22 +2,79 @@
   "city": "Phoenix, AZ",
   "timeRange": "Last 24h",
   "layers": [
-    { "id": "surface_temp", "name": "Surface Temperature", "color": "#F05A28", "active": true },
-    { "id": "ndvi_veg", "name": "NDVI Vegetation", "color": "#1CC664", "active": true },
-    { "id": "uhi_index", "name": "Urban Heat Island", "color": "#F03C3C", "active": true },
-    { "id": "wind_corridors", "name": "Wind Corridors", "color": "#5898F6", "active": true },
-    { "id": "surface_albedo", "name": "Surface Albedo", "color": "#A36AF5", "active": true }
+    {
+      "id": "surface_temp",
+      "name": "Surface Temperature",
+      "color": "#F05A28",
+      "active": false
+    },
+    {
+      "id": "ndvi_veg",
+      "name": "NDVI Vegetation",
+      "color": "#1CC664",
+      "active": false
+    },
+    {
+      "id": "uhi_index",
+      "name": "Urban Heat Island",
+      "color": "#F03C3C",
+      "active": false
+    },
+    {
+      "id": "wind_corridors",
+      "name": "Wind Corridors",
+      "color": "#5898F6",
+      "active": false
+    },
+    {
+      "id": "surface_albedo",
+      "name": "Surface Albedo",
+      "color": "#A36AF5",
+      "active": false
+    }
   ],
   "insights": {
-    "surfaceTemp": { "value": "41.2°C", "subtext": "+2.4° above avg" },
-    "ndviScore": { "value": "0.22", "subtext": "Low vegetation" },
-    "uhiIndex": { "value": "+5.1°C", "subtext": "Urban vs rural" },
-    "heatZones": { "value": "7 active", "subtext": "3 critical" }
+    "surfaceTemp": {
+      "value": "41.2°C",
+      "subtext": "+2.4° above avg"
+    },
+    "ndviScore": {
+      "value": "0.22",
+      "subtext": "Low vegetation"
+    },
+    "uhiIndex": {
+      "value": "+5.1°C",
+      "subtext": "Urban vs rural"
+    },
+    "heatZones": {
+      "value": "7 active",
+      "subtext": "3 critical"
+    }
   },
   "vegetation": [
-    { "area": "Indira Nagar", "status": "Moderate", "score": 45, "color": "green" },
-    { "area": "Gomti Nagar", "status": "Moderate", "score": 35, "color": "orange" },
-    { "area": "Hazratganj", "status": "Low", "score": 25, "color": "red" },
-    { "area": "Chowk / Alambagh", "status": "Critical", "score": 10, "color": "red" }
+    {
+      "area": "Indira Nagar",
+      "status": "Moderate",
+      "score": 45,
+      "color": "green"
+    },
+    {
+      "area": "Gomti Nagar",
+      "status": "Moderate",
+      "score": 35,
+      "color": "orange"
+    },
+    {
+      "area": "Hazratganj",
+      "status": "Low",
+      "score": 25,
+      "color": "red"
+    },
+    {
+      "area": "Chowk / Alambagh",
+      "status": "Critical",
+      "score": 10,
+      "color": "red"
+    }
   ]
 }

@@ -6,7 +6,17 @@ import { Switch } from '@/components/ui/switch';
 import { getDashboard, getWeather } from '@/services/api';
 import { DashboardData, WeatherData } from '@/types';
 
-export default function LeftSidebar({ isOpen = true }: { isOpen?: boolean }) {
+interface LeftSidebarProps {
+  isOpen?: boolean;
+  activeLayer: string;
+  setActiveLayer: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export default function LeftSidebar({
+  isOpen = true,
+  activeLayer,
+  setActiveLayer,
+}: LeftSidebarProps) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
 
@@ -31,7 +41,7 @@ export default function LeftSidebar({ isOpen = true }: { isOpen?: boolean }) {
   return (
     <aside className={`bg-white border-slate-200/80 h-full overflow-hidden flex flex-col pt-14 flex-shrink-0 z-40 relative shadow-sm select-none transition-all duration-300 ${isOpen ? 'w-[250px] border-r' : 'w-0 border-r-0'}`}>
       <div className="p-5 flex flex-col gap-6 w-[250px] h-full overflow-y-auto">
-        
+
         {/* City Selector */}
         <div className="space-y-2">
           <h3 className="text-[9px] font-semibold text-[#8F95A1] tracking-[0.12em] uppercase">CITY</h3>
@@ -63,21 +73,35 @@ export default function LeftSidebar({ isOpen = true }: { isOpen?: boolean }) {
             {data.layers.map((layer) => (
               <div key={layer.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div 
-                    className={`w-2.5 h-2.5 rounded-full shadow-sm transition-opacity duration-200 ${layer.active ? 'opacity-100' : 'opacity-30'}`} 
+                  <div
+                    className={`w-2.5 h-2.5 rounded-full shadow-sm transition-opacity duration-200 ${layer.active ? 'opacity-100' : 'opacity-30'}`}
                     style={{ backgroundColor: layer.color }}
                   ></div>
                   <span className={`text-[11px] font-medium transition-colors ${layer.active ? 'text-slate-800' : 'text-slate-400'}`}>
                     {layer.name}
                   </span>
                 </div>
-                <Switch 
-                  checked={layer.active} 
+                <Switch
+                  checked={layer.active}
                   onCheckedChange={(checked) => {
-                    setData(prev => prev ? {
-                      ...prev,
-                      layers: prev.layers.map(l => l.id === layer.id ? { ...l, active: checked } : l)
-                    } : prev)
+                    setData(prev =>
+                      prev
+                        ? {
+                          ...prev,
+                          layers: prev.layers.map(l =>
+                            l.id === layer.id
+                              ? { ...l, active: checked }
+                              : { ...l, active: false }
+                          ),
+                        }
+                        : prev
+                    );
+
+                    if (checked) {
+                      setActiveLayer(layer.id);
+                    } else {
+                      setActiveLayer(null);
+                    }
                   }}
                   style={{ backgroundColor: layer.active ? layer.color : '#e2e8f0', borderColor: layer.active ? layer.color : '#e2e8f0' }}
                 />
@@ -90,7 +114,7 @@ export default function LeftSidebar({ isOpen = true }: { isOpen?: boolean }) {
         <div className="space-y-3">
           <h3 className="text-[9px] font-semibold text-[#8F95A1] tracking-[0.12em] uppercase">CONDITIONS</h3>
           <div className="flex flex-col gap-2.5">
-            
+
             {/* Wind Speed */}
             <div className="flex items-center justify-between bg-[#F8F9FB] hover:bg-slate-50 rounded-xl px-3 py-2.5 transition-all duration-200">
               <div className="flex items-center gap-2.5">

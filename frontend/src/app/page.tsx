@@ -8,12 +8,18 @@ import MapArea from '@/components/map/MapArea';
 export default function Dashboard() {
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
+  const [activeLayer, setActiveLayer] = useState<string | null>(null);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
-      <LeftSidebar isOpen={leftOpen} />
+      <LeftSidebar
+        isOpen={leftOpen}
+        activeLayer={activeLayer}
+        setActiveLayer={setActiveLayer}
+      />
 
       <MapArea
+        activeLayer={activeLayer}
         leftOpen={leftOpen}
         rightOpen={rightOpen}
         onToggleLeft={() => setLeftOpen(!leftOpen)}

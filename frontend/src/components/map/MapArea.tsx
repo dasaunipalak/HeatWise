@@ -2,12 +2,14 @@
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import dynamic from "next/dynamic";
+import Legend from "./Legend";
 
 const LeafletMap = dynamic(() => import("./LeafletMap"), {
   ssr: false,
 });
 
 interface MapAreaProps {
+  activeLayer: string;
   leftOpen?: boolean;
   rightOpen?: boolean;
   onToggleLeft?: () => void;
@@ -15,7 +17,7 @@ interface MapAreaProps {
 }
 
 
-export default function MapArea({ leftOpen = true, rightOpen = true, onToggleLeft, onToggleRight }: MapAreaProps) {
+export default function MapArea({ activeLayer, leftOpen = true, rightOpen = true, onToggleLeft, onToggleRight }: MapAreaProps) {
   return (
     <main className="flex-1 relative bg-[#f2e7d7] overflow-hidden flex flex-col z-10 select-none transition-all duration-300">
       <div className="absolute inset-x-0 top-14 bottom-0 z-0">
@@ -38,17 +40,7 @@ export default function MapArea({ leftOpen = true, rightOpen = true, onToggleLef
         <ChevronRight size={14} strokeWidth={2.5} className={`transition-transform duration-300 ${!rightOpen ? 'rotate-180' : ''}`} />
       </button>
 
-      {/* Map Legend */}
-      <div className="absolute bottom-6 left-6 bg-[#2A303C]/95 backdrop-blur-md p-3.5 rounded-lg text-white w-56 shadow-xl border border-[#3B4252] z-20 select-none">
-        <div className="text-[8px] font-bold tracking-wider mb-2.5 text-[#8F95A1] uppercase">SURFACE TEMP</div>
-        <div className="h-2 rounded-full bg-gradient-to-r from-[#1CC664] via-[#FFD13B] via-[#F05A28] to-[#D52D2D] mb-2"></div>
-        <div className="flex justify-between text-[7px] text-slate-400 font-bold">
-          <span>28°C</span>
-          <span>36°C</span>
-          <span>44°C</span>
-          <span>52°C</span>
-        </div>
-      </div>
+      {activeLayer !== null && <Legend type={activeLayer} />}
 
       <button className="fixed bottom-6 right-6 w-10 h-10 rounded-full bg-[#2A303C] text-white flex items-center justify-center shadow-xl hover:bg-[#3B4252] hover:scale-105 active:scale-95 transition-all z-50 border border-[#3B4252] font-bold text-sm cursor-pointer">
         ?
