@@ -9,6 +9,10 @@ export default function Dashboard() {
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
   const [activeLayer, setActiveLayer] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<{
+    lat: number;
+    lon: number;
+  } | null>(null);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
@@ -16,10 +20,12 @@ export default function Dashboard() {
         isOpen={leftOpen}
         activeLayer={activeLayer}
         setActiveLayer={setActiveLayer}
+        setSelectedLocation={setSelectedLocation}
       />
 
       <MapArea
         activeLayer={activeLayer}
+        selectedLocation={selectedLocation}
         leftOpen={leftOpen}
         rightOpen={rightOpen}
         onToggleLeft={() => setLeftOpen(!leftOpen)}

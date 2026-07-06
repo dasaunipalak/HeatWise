@@ -9,19 +9,23 @@ const LeafletMap = dynamic(() => import("./LeafletMap"), {
 });
 
 interface MapAreaProps {
-  activeLayer: string;
-  leftOpen?: boolean;
-  rightOpen?: boolean;
-  onToggleLeft?: () => void;
-  onToggleRight?: () => void;
+  activeLayer: string | null;
+  selectedLocation: {
+    lat: number;
+    lon: number;
+  } | null;
+  leftOpen: boolean;
+  rightOpen: boolean;
+  onToggleLeft: () => void;
+  onToggleRight: () => void;
 }
 
 
-export default function MapArea({ activeLayer, leftOpen = true, rightOpen = true, onToggleLeft, onToggleRight }: MapAreaProps) {
+export default function MapArea({ activeLayer, selectedLocation, leftOpen = true, rightOpen = true, onToggleLeft, onToggleRight }: MapAreaProps) {
   return (
     <main className="flex-1 relative bg-[#f2e7d7] overflow-hidden flex flex-col z-10 select-none transition-all duration-300">
       <div className="absolute inset-x-0 top-14 bottom-0 z-0">
-        <LeafletMap />
+        <LeafletMap selectedLocation={selectedLocation} />
       </div>
 
       {/* Slider Left Arrow */}

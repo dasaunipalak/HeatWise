@@ -1,14 +1,45 @@
 'use client';
 
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { useEffect } from "react";
 
-export default function LeafletMap() {
+interface LeafletMapProps {
+    selectedLocation: {
+        lat: number;
+        lon: number;
+    } | null;
+}
+
+function FlyToLocation({
+    selectedLocation,
+}: {
+    selectedLocation: { lat: number; lon: number } | null;
+}) {
+    const map = useMap();
+
+    useEffect(() => {
+        if (selectedLocation) {
+            map.flyTo(
+                [selectedLocation.lat, selectedLocation.lon],
+                13,
+                {
+                    duration: 1.5,
+                }
+            );
+        }
+    }, [selectedLocation, map]);
+
+    return null;
+}
+
+export default function LeafletMap({ selectedLocation }: LeafletMapProps) {
     return (
         <MapContainer
-            center={[26.8467, 80.9462]}
-            zoom={12}
+            center={[22.5937, 78.9629]}
+            zoom={5}
             style={{ height: "100%", width: "100%" }}
         >
+            <FlyToLocation selectedLocation={selectedLocation} />
             <TileLayer
                 attribution="&copy; OpenStreetMap contributors"
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

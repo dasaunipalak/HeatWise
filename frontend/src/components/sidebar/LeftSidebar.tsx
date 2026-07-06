@@ -1,24 +1,60 @@
 'use client';
-
-import { useState, useEffect } from 'react';
-import { MapPin, Calendar, Wind, Droplets, Activity, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { searchLocation, SearchResult } from "@/services/geocode";
+import {
+  Search,
+  Calendar,
+  Wind,
+  Droplets,
+  Activity,
+  ChevronDown,
+} from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { getDashboard, getWeather } from '@/services/api';
 import { DashboardData, WeatherData } from '@/types';
 
 interface LeftSidebarProps {
   isOpen?: boolean;
-  activeLayer: string;
-  setActiveLayer: React.Dispatch<React.SetStateAction<string>>;
+  activeLayer: string | null;
+  setActiveLayer: React.Dispatch<React.SetStateAction<string | null>>;
+  setSelectedLocation: React.Dispatch<
+    React.SetStateAction<{
+      lat: number;
+      lon: number;
+    } | null>
+  >;
 }
 
 export default function LeftSidebar({
   isOpen = true,
   activeLayer,
   setActiveLayer,
+  setSelectedLocation,
 }: LeftSidebarProps) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setSuggestions([]);
+        setSelectedIndex(-1);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,6 +65,28 @@ export default function LeftSidebar({
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    let isActive = true;
+
+    if (!searchQuery.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      const results = await searchLocation(searchQuery);
+      if (isActive) {
+        setSuggestions(results);
+        setSelectedIndex(results.length > 0 ? 0 : -1);
+      }
+    }, 300);
+
+    return () => {
+      isActive = false;
+      clearTimeout(timer);
+    };
+  }, [searchQuery]);
 
   if (!data || !weather) {
     return (
@@ -42,15 +100,87 @@ export default function LeftSidebar({
     <aside className={`bg-white border-slate-200/80 h-full overflow-hidden flex flex-col pt-14 flex-shrink-0 z-40 relative shadow-sm select-none transition-all duration-300 ${isOpen ? 'w-[250px] border-r' : 'w-0 border-r-0'}`}>
       <div className="p-5 flex flex-col gap-6 w-[250px] h-full overflow-y-auto">
 
-        {/* City Selector */}
+        {/* Search Location */}
         <div className="space-y-2">
-          <h3 className="text-[9px] font-semibold text-[#8F95A1] tracking-[0.12em] uppercase">CITY</h3>
-          <div className="flex items-center justify-between border border-[#E5E7EB] rounded-lg px-3 py-2 cursor-pointer hover:bg-slate-50 hover:border-slate-300 transition-all bg-[#F8F9FB] shadow-[0_1px_2px_rgba(0,0,0,0.02)] duration-200">
-            <div className="flex items-center gap-2">
-              <MapPin size={15} className="text-[#F05A28]" />
-              <span className="text-[11px] font-medium text-slate-700">{data.city}</span>
-            </div>
-            <ChevronDown size={14} className="text-slate-400" />
+          <h3 className="text-[9px] font-semibold text-[#8F95A1] tracking-[0.12em] uppercase">
+            SEARCH LOCATION
+          </h3>
+
+          <div className="relative">
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#F05A28]"
+            />
+
+            <input
+              type="text"
+              placeholder="Search any place..."
+              className="w-full pl-9 pr-3 py-2 text-[11px] font-medium text-slate-700 bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.02)] hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:border-slate-300 focus:bg-white transition-all duration-200 placeholder:text-slate-400"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (!suggestions.length) return;
+
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setSelectedIndex((prev) =>
+                    prev < suggestions.length - 1 ? prev + 1 : prev
+                  );
+                }
+
+                if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setSelectedIndex((prev) =>
+                    prev > 0 ? prev - 1 : prev
+                  );
+                }
+
+                if (e.key === "Enter") {
+                  e.preventDefault();
+
+                  const place = suggestions[selectedIndex];
+
+                  if (!place) return;
+
+                  setSearchQuery(place.displayName);
+
+                  setSelectedLocation({
+                    lat: place.lat,
+                    lon: place.lon,
+                  });
+
+                  setSuggestions([]);
+                  setSelectedIndex(-1);
+                }
+
+                if (e.key === "Escape") {
+                  setSuggestions([]);
+                  setSelectedIndex(-1);
+                }
+              }}
+            />
+            {suggestions.length > 0 && (
+              <div className="absolute z-50 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg max-h-60 overflow-y-auto">
+                {suggestions.map((place, index) => (
+                  <button
+                    key={index}
+                    className={`w-full px-3 py-2 text-left text-[11px] transition-colors ${index === selectedIndex ? "bg-slate-100" : "hover:bg-slate-100"}`}
+                    onClick={() => {
+                      setSearchQuery(place.displayName);
+
+                      setSelectedLocation({
+                        lat: place.lat,
+                        lon: place.lon,
+                      });
+
+                      setSuggestions([]);
+                    }}
+                  >
+                    📍 {place.displayName}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
