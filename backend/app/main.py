@@ -1,8 +1,27 @@
 from fastapi import FastAPI
-
+from app.api.v1.endpoints import map_layers
 from app.predictor import predict_temperature
 
 app = FastAPI()
+
+app.include_router(
+
+    map_layers.router,
+
+    prefix="/api/v1/maps",
+
+    tags=["maps"],
+
+)
+
+@app.on_event("startup")
+
+def startup_event():
+
+    import ee
+
+    ee.Initialize()
+
 
 
 @app.get("/")
