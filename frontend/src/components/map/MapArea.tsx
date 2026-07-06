@@ -57,7 +57,7 @@ export default function MapArea({
       )}
 
       <div className="absolute inset-x-0 top-14 bottom-0 z-0">
-        <LeafletMap selectedLocation={selectedLocation} tileUrl={tileUrl} />
+        <LeafletMap selectedLocation={selectedLocation} tileUrl={tileUrl} activeLayer={activeLayer} />
       </div>
 
       {/* Slider Left Arrow */}

@@ -8,7 +8,7 @@ import MapArea from '@/components/map/MapArea';
 export default function Dashboard() {
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
-  const [activeLayer, setActiveLayer] = useState<string | null>(null);
+  const [activeLayer, setActiveLayer] = useState<string | null>("surface_temp");
   const [previousLayer, setPreviousLayer] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<{
     lat: number;
