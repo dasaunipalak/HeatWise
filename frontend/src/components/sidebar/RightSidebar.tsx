@@ -33,6 +33,12 @@ export default function RightSidebar({ isOpen = true }: { isOpen?: boolean }) {
         </span>
       </div>
 
+      {/* Mock Demo Data Notice */}
+      <div className="px-4 py-2 bg-slate-50 border-b border-slate-200/60 flex items-center gap-1.5 text-[9.5px] text-slate-500 font-medium select-none">
+        <span>ℹ️</span>
+        <span>AI analysis and metrics shown are mock demo data</span>
+      </div>
+
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="w-full rounded-none border-b border-slate-200 bg-transparent p-0 h-auto flex !gap-0">

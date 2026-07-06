@@ -68,11 +68,11 @@ export default function LeftSidebar({
       
       if (dashData && dashData.layers) {
         dashData.layers = [
-          dashData.layers[0], // Surface Temp
-          dashData.layers[1], // NDVI
-          { id: "ndbi_builtup", name: "Built-up Density (NDBI)", color: "#ea580c", active: false },
-          { id: "ndwi_water", name: "Water Presence (NDWI)", color: "#0ea5e9", active: false },
-          { id: "lulc_classification", name: "Land Use Classification (LULC)", color: "#8b5cf6", active: false }
+          { ...dashData.layers[0], active: dashData.layers[0].id === activeLayer },
+          { ...dashData.layers[1], active: dashData.layers[1].id === activeLayer },
+          { id: "ndbi_builtup", name: "Built-up Density (NDBI)", color: "#ea580c", active: "ndbi_builtup" === activeLayer },
+          { id: "ndwi_water", name: "Water Presence (NDWI)", color: "#0ea5e9", active: "ndwi_water" === activeLayer },
+          { id: "lulc_classification", name: "Land Use Classification (LULC)", color: "#8b5cf6", active: "lulc_classification" === activeLayer }
         ];
       }
 
@@ -83,19 +83,18 @@ export default function LeftSidebar({
   }, []);
 
   useEffect(() => {
-    if (data) {
-      setData(prev =>
-        prev
-          ? {
-            ...prev,
-            layers: prev.layers.map(l => ({
-              ...l,
-              active: l.id === activeLayer
-            }))
-          }
-          : prev
-      );
-    }
+    setData(prev => {
+      if (!prev) return null;
+      const hasChanged = prev.layers.some(l => (l.id === activeLayer) !== l.active);
+      if (!hasChanged) return prev;
+      return {
+        ...prev,
+        layers: prev.layers.map(l => ({
+          ...l,
+          active: l.id === activeLayer
+        }))
+      };
+    });
   }, [activeLayer]);
 
   useEffect(() => {
@@ -147,7 +146,8 @@ export default function LeftSidebar({
             <input
               type="text"
               placeholder="Search any place..."
-              className="w-full pl-9 pr-3 py-2 text-[11px] font-medium text-slate-700 bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.02)] hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:border-slate-300 focus:bg-white transition-all duration-200 placeholder:text-slate-400"
+              className="w-full pl-9 pr-3 py-2 text-[11px] font-medium text-slate-700 bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.02)] hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:border-slate-300 focus:bg-white transition-all duration-200 placeholder:text-slate-400 truncate"
+              title={searchQuery}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => {
@@ -196,7 +196,8 @@ export default function LeftSidebar({
                 {suggestions.map((place, index) => (
                   <button
                     key={index}
-                    className={`w-full px-3 py-2 text-left text-[11px] transition-colors ${index === selectedIndex ? "bg-slate-100" : "hover:bg-slate-100"}`}
+                    className={`w-full px-3 py-2 text-left text-[11px] transition-colors truncate ${index === selectedIndex ? "bg-slate-100" : "hover:bg-slate-100"}`}
+                    title={place.displayName}
                     onClick={() => {
                       setSearchQuery(place.displayName);
 

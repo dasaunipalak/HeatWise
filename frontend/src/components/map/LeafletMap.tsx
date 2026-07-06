@@ -9,6 +9,7 @@ interface LeafletMapProps {
         lon: number;
     } | null;
     tileUrl: string | null;
+    activeLayer: string | null;
 }
 
 function FlyToLocation({
@@ -33,7 +34,7 @@ function FlyToLocation({
     return null;
 }
 
-export default function LeafletMap({ selectedLocation, tileUrl }: LeafletMapProps) {
+export default function LeafletMap({ selectedLocation, tileUrl, activeLayer }: LeafletMapProps) {
     return (
         <MapContainer
             center={[22.5937, 78.9629]}
