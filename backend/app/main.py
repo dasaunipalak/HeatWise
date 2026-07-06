@@ -15,12 +15,13 @@ app.include_router(
 )
 
 @app.on_event("startup")
-
 def startup_event():
-
+    import os
+    from dotenv import load_dotenv
     import ee
-
-    ee.Initialize()
+    load_dotenv()
+    PROJECT_ID = os.getenv('GEE_PROJECT_ID')
+    ee.Initialize(project=PROJECT_ID)
 
 
 
