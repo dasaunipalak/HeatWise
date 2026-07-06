@@ -8,6 +8,9 @@ import {
   Droplets,
   Activity,
   ChevronDown,
+  Building2,
+  Droplet,
+  Layers,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { getDashboard, getWeather } from '@/services/api';
@@ -60,6 +63,17 @@ export default function LeftSidebar({
     const fetchData = async () => {
       const dashData = await getDashboard() as DashboardData;
       const weatherData = await getWeather() as WeatherData;
+      
+      if (dashData && dashData.layers) {
+        dashData.layers = [
+          dashData.layers[0], // Surface Temp
+          dashData.layers[1], // NDVI
+          { id: "ndbi_builtup", name: "Built-up Density (NDBI)", color: "#ea580c", active: false },
+          { id: "ndwi_water", name: "Water Presence (NDWI)", color: "#0ea5e9", active: false },
+          { id: "lulc_classification", name: "Land Use Classification (LULC)", color: "#8b5cf6", active: false }
+        ];
+      }
+
       setData(dashData);
       setWeather(weatherData);
     };
@@ -200,43 +214,60 @@ export default function LeftSidebar({
         <div className="space-y-3.5">
           <h3 className="text-[9px] font-semibold text-[#8F95A1] tracking-[0.12em] uppercase">DATA LAYERS</h3>
           <div className="flex flex-col gap-3.5">
-            {data.layers.map((layer) => (
-              <div key={layer.id} className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className={`w-2.5 h-2.5 rounded-full shadow-sm transition-opacity duration-200 ${layer.active ? 'opacity-100' : 'opacity-30'}`}
-                    style={{ backgroundColor: layer.color }}
-                  ></div>
-                  <span className={`text-[11px] font-medium transition-colors ${layer.active ? 'text-slate-800' : 'text-slate-400'}`}>
-                    {layer.name}
-                  </span>
-                </div>
-                <Switch
-                  checked={layer.active}
-                  onCheckedChange={(checked) => {
-                    setData(prev =>
-                      prev
-                        ? {
-                          ...prev,
-                          layers: prev.layers.map(l =>
-                            l.id === layer.id
-                              ? { ...l, active: checked }
-                              : { ...l, active: false }
-                          ),
-                        }
-                        : prev
-                    );
+            {data.layers.map((layer) => {
+              let iconComponent = null;
+              if (layer.id === 'ndbi_builtup') {
+                iconComponent = <Building2 size={13} className={layer.active ? 'text-[#ea580c]' : 'text-slate-400'} />;
+              } else if (layer.id === 'ndwi_water') {
+                iconComponent = <Droplet size={13} className={layer.active ? 'text-[#0ea5e9]' : 'text-slate-400'} />;
+              } else if (layer.id === 'lulc_classification') {
+                iconComponent = <Layers size={13} className={layer.active ? 'text-[#8b5cf6]' : 'text-slate-400'} />;
+              }
 
-                    if (checked) {
-                      setActiveLayer(layer.id);
-                    } else {
-                      setActiveLayer(null);
-                    }
-                  }}
-                  style={{ backgroundColor: layer.active ? layer.color : '#e2e8f0', borderColor: layer.active ? layer.color : '#e2e8f0' }}
-                />
-              </div>
-            ))}
+              return (
+                <div key={layer.id} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    {iconComponent ? (
+                      <div className="w-4 h-4 flex items-center justify-center">
+                        {iconComponent}
+                      </div>
+                    ) : (
+                      <div
+                        className={`w-2.5 h-2.5 rounded-full shadow-sm transition-opacity duration-200 ${layer.active ? 'opacity-100' : 'opacity-30'}`}
+                        style={{ backgroundColor: layer.color }}
+                      ></div>
+                    )}
+                    <span className={`text-[11px] font-medium transition-colors ${layer.active ? 'text-slate-800' : 'text-slate-400'}`}>
+                      {layer.name}
+                    </span>
+                  </div>
+                  <Switch
+                    checked={layer.active}
+                    onCheckedChange={(checked) => {
+                      setData(prev =>
+                        prev
+                          ? {
+                            ...prev,
+                            layers: prev.layers.map(l =>
+                              l.id === layer.id
+                                ? { ...l, active: checked }
+                                : { ...l, active: false }
+                            ),
+                          }
+                          : prev
+                      );
+
+                      if (checked) {
+                        setActiveLayer(layer.id);
+                      } else {
+                        setActiveLayer(null);
+                      }
+                    }}
+                    style={{ backgroundColor: layer.active ? layer.color : '#e2e8f0', borderColor: layer.active ? layer.color : '#e2e8f0' }}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
 
