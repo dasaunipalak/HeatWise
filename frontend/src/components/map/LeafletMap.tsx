@@ -8,6 +8,7 @@ interface LeafletMapProps {
         lat: number;
         lon: number;
     } | null;
+    tileUrl: string | null;
 }
 
 function FlyToLocation({
@@ -32,7 +33,7 @@ function FlyToLocation({
     return null;
 }
 
-export default function LeafletMap({ selectedLocation }: LeafletMapProps) {
+export default function LeafletMap({ selectedLocation, tileUrl }: LeafletMapProps) {
     return (
         <MapContainer
             center={[22.5937, 78.9629]}
@@ -44,6 +45,13 @@ export default function LeafletMap({ selectedLocation }: LeafletMapProps) {
                 attribution="&copy; OpenStreetMap contributors"
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+            {tileUrl && (
+                <TileLayer
+                    key={tileUrl}
+                    url={tileUrl}
+                    attribution="Google Earth Engine"
+                />
+            )}
         </MapContainer>
     );
 }

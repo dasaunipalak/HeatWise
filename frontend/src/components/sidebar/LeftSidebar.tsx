@@ -26,6 +26,7 @@ interface LeftSidebarProps {
       lon: number;
     } | null>
   >;
+  isLoadingTile?: boolean;
 }
 
 export default function LeftSidebar({
@@ -33,6 +34,7 @@ export default function LeftSidebar({
   activeLayer,
   setActiveLayer,
   setSelectedLocation,
+  isLoadingTile = false,
 }: LeftSidebarProps) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -79,6 +81,22 @@ export default function LeftSidebar({
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (data) {
+      setData(prev =>
+        prev
+          ? {
+            ...prev,
+            layers: prev.layers.map(l => ({
+              ...l,
+              active: l.id === activeLayer
+            }))
+          }
+          : prev
+      );
+    }
+  }, [activeLayer]);
 
   useEffect(() => {
     let isActive = true;
@@ -243,6 +261,7 @@ export default function LeftSidebar({
                   </div>
                   <Switch
                     checked={layer.active}
+                    disabled={isLoadingTile}
                     onCheckedChange={(checked) => {
                       setData(prev =>
                         prev

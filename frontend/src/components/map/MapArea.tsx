@@ -18,14 +18,46 @@ interface MapAreaProps {
   rightOpen: boolean;
   onToggleLeft: () => void;
   onToggleRight: () => void;
+  tileUrl: string | null;
+  isLoadingTile: boolean;
+  tileError: string | null;
+  setTileError: (error: string | null) => void;
 }
 
 
-export default function MapArea({ activeLayer, selectedLocation, leftOpen = true, rightOpen = true, onToggleLeft, onToggleRight }: MapAreaProps) {
+export default function MapArea({
+  activeLayer,
+  selectedLocation,
+  leftOpen = true,
+  rightOpen = true,
+  onToggleLeft,
+  onToggleRight,
+  tileUrl,
+  isLoadingTile,
+  tileError,
+  setTileError
+}: MapAreaProps) {
   return (
     <main className="flex-1 relative bg-[#f2e7d7] overflow-hidden flex flex-col z-10 select-none transition-all duration-300">
+      
+      {/* Toast Error Notification */}
+      {tileError && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-50 bg-red-500 text-white px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 text-xs font-semibold border border-red-600 animate-in fade-in slide-in-from-top-4 duration-300">
+          <span>⚠️ {tileError}</span>
+          <button onClick={() => setTileError(null)} className="ml-2 font-bold hover:text-red-200 text-sm">×</button>
+        </div>
+      )}
+
+      {/* Loading overlay indicator */}
+      {isLoadingTile && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-50 bg-[#2A303C]/95 backdrop-blur-md text-white px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2.5 text-xs font-semibold border border-slate-700/50 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="w-3.5 h-3.5 border-2 border-[#ea580c] border-t-transparent rounded-full animate-spin"></div>
+          <span>Generating GEE Layer...</span>
+        </div>
+      )}
+
       <div className="absolute inset-x-0 top-14 bottom-0 z-0">
-        <LeafletMap selectedLocation={selectedLocation} />
+        <LeafletMap selectedLocation={selectedLocation} tileUrl={tileUrl} />
       </div>
 
       {/* Slider Left Arrow */}
