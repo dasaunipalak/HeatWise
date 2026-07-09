@@ -14,13 +14,19 @@ export default function Dashboard() {
     lat: number;
     lon: number;
   } | null>(null);
+  const [mapBounds, setMapBounds] = useState<{
+    north: number;
+    south: number;
+    east: number;
+    west: number;
+  } | null>(null);
 
   const [tileUrl, setTileUrl] = useState<string | null>(null);
   const [isLoadingTile, setIsLoadingTile] = useState(false);
   const [tileError, setTileError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!activeLayer) {
+    if (!activeLayer || !mapBounds) {
       setTileUrl(null);
       setPreviousLayer(null);
       return;
@@ -31,7 +37,16 @@ export default function Dashboard() {
       setIsLoadingTile(true);
       setTileError(null);
       try {
-        const response = await fetch(`/api/v1/maps/${activeLayer}`);
+        if (!mapBounds) return;
+
+        console.log("Current map bounds:", mapBounds);
+
+        const { north, south, east, west } = mapBounds;
+
+        const response = await fetch(
+          `/api/v1/maps/${activeLayer}?north=${north}&south=${south}&east=${east}&west=${west}`
+        );
+
         if (!response.ok) {
           throw new Error(`Failed to load layer: ${response.statusText || response.status}`);
         }
@@ -62,7 +77,7 @@ export default function Dashboard() {
     return () => {
       isCurrent = false;
     };
-  }, [activeLayer]);
+  }, [activeLayer, mapBounds]);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
@@ -81,6 +96,7 @@ export default function Dashboard() {
         rightOpen={rightOpen}
         onToggleLeft={() => setLeftOpen(!leftOpen)}
         onToggleRight={() => setRightOpen(!rightOpen)}
+        onBoundsChange={setMapBounds}
         tileUrl={tileUrl}
         isLoadingTile={isLoadingTile}
         tileError={tileError}

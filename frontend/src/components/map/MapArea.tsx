@@ -18,6 +18,12 @@ interface MapAreaProps {
   rightOpen: boolean;
   onToggleLeft: () => void;
   onToggleRight: () => void;
+  onBoundsChange: (bounds: {
+    north: number;
+    south: number;
+    east: number;
+    west: number;
+  }) => void;
   tileUrl: string | null;
   isLoadingTile: boolean;
   tileError: string | null;
@@ -32,6 +38,7 @@ export default function MapArea({
   rightOpen = true,
   onToggleLeft,
   onToggleRight,
+  onBoundsChange,
   tileUrl,
   isLoadingTile,
   tileError,
@@ -39,7 +46,7 @@ export default function MapArea({
 }: MapAreaProps) {
   return (
     <main className="flex-1 relative bg-[#f2e7d7] overflow-hidden flex flex-col z-10 select-none transition-all duration-300">
-      
+
       {/* Toast Error Notification */}
       {tileError && (
         <div className="absolute top-16 left-1/2 -translate-x-1/2 z-50 bg-red-500 text-white px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 text-xs font-semibold border border-red-600 animate-in fade-in slide-in-from-top-4 duration-300">
@@ -57,7 +64,12 @@ export default function MapArea({
       )}
 
       <div className="absolute inset-x-0 top-14 bottom-0 z-0">
-        <LeafletMap selectedLocation={selectedLocation} tileUrl={tileUrl} activeLayer={activeLayer} />
+        <LeafletMap
+          selectedLocation={selectedLocation}
+          tileUrl={tileUrl}
+          activeLayer={activeLayer}
+          onBoundsChange={onBoundsChange}
+        />
       </div>
 
       {/* Slider Left Arrow */}

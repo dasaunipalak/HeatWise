@@ -10,6 +10,13 @@ interface LeafletMapProps {
     } | null;
     tileUrl: string | null;
     activeLayer: string | null;
+
+    onBoundsChange: (bounds: {
+        north: number;
+        south: number;
+        east: number;
+        west: number;
+    }) => void;
 }
 
 function FlyToLocation({
@@ -34,23 +41,71 @@ function FlyToLocation({
     return null;
 }
 
-export default function LeafletMap({ selectedLocation, tileUrl, activeLayer }: LeafletMapProps) {
+function BoundsWatcher({
+    onBoundsChange,
+}: {
+    onBoundsChange: (bounds: {
+        north: number;
+        south: number;
+        east: number;
+        west: number;
+    }) => void;
+}) {
+    const map = useMap();
+
+    useEffect(() => {
+        const updateBounds = () => {
+            const bounds = map.getBounds();
+
+            onBoundsChange({
+                north: bounds.getNorth(),
+                south: bounds.getSouth(),
+                east: bounds.getEast(),
+                west: bounds.getWest(),
+            });
+        };
+
+        updateBounds();
+
+        map.on("moveend", updateBounds);
+        map.on("zoomend", updateBounds);
+
+        return () => {
+            map.off("moveend", updateBounds);
+            map.off("zoomend", updateBounds);
+        };
+    }, [map, onBoundsChange]);
+
+    return null;
+}
+
+export default function LeafletMap({
+    selectedLocation,
+    tileUrl,
+    activeLayer,
+    onBoundsChange,
+}: LeafletMapProps) {
     return (
         <MapContainer
             center={[22.5937, 78.9629]}
             zoom={5}
             style={{ height: "100%", width: "100%" }}
         >
+            <BoundsWatcher onBoundsChange={onBoundsChange} />
+
             <FlyToLocation selectedLocation={selectedLocation} />
+
             <TileLayer
-                attribution="&copy; OpenStreetMap contributors"
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; OpenStreetMap contributors &copy; CARTO'
+                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
             />
+
             {tileUrl && (
                 <TileLayer
                     key={tileUrl}
                     url={tileUrl}
                     attribution="Google Earth Engine"
+                    opacity={0.30}
                 />
             )}
         </MapContainer>
