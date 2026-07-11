@@ -15,10 +15,12 @@ export interface DashboardData {
   timeRange: string;
   layers: Layer[];
   insights: {
-    surfaceTemp: Insight;
-    ndviScore: Insight;
-    uhiIndex: Insight;
-    heatZones: Insight;
+    avgSurfaceTemp: Insight;
+    avgAirTemp: Insight;
+    greenCover: Insight;
+    builtUpArea: Insight;
+    waterCoverage: Insight;
+    dominantLandType: Insight;
   };
   vegetation: Array<{
     area: string;

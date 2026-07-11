@@ -21,15 +21,7 @@ export default function Navbar() {
             AI
           </span>
         </Link>
-        <div className="w-px h-5 bg-[#3B4252]"></div>
-        <nav className="flex items-center gap-3 text-[11px] font-medium">
-          <Link href="/" className={`${pathname === '/' ? 'text-white bg-[#2D333E] px-3.5 py-1.5 rounded-full' : 'text-slate-400 hover:text-slate-200 hover:bg-[#2D333E]/50 px-3.5 py-1.5 rounded-full'} transition-all duration-200 flex items-center gap-2`}>
-            <MapIcon size={14} className={pathname === '/' ? 'text-[#F05A28]' : ''} /> Heat Map
-          </Link>
-          <Link href="/plan-site" className={`${pathname === '/plan-site' ? 'text-white bg-[#2D333E] px-3.5 py-1.5 rounded-full' : 'text-slate-400 hover:text-slate-200 hover:bg-[#2D333E]/50 px-3.5 py-1.5 rounded-full'} transition-all duration-200 flex items-center gap-2`}>
-            <CheckCircle2 size={14} className={pathname === '/plan-site' ? 'text-[#F05A28]' : ''} /> Plan Your Site
-          </Link>
-        </nav>
+
       </div>
 
       <div className="flex items-center gap-4">
