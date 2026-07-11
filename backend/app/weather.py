@@ -17,7 +17,7 @@ def get_live_weather(latitude, longitude):
 
     current = data["current"]
 
-    print(current)
+    # print(current)
 
     return {
         "AirTemp": current["temperature_2m"],

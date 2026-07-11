@@ -34,16 +34,18 @@ def home():
 def predict(
     latitude: float,
     longitude: float,
-    plant_trees: bool = False,
-    cool_roofs: bool = False
+    ndvi_change: float = 0.0,
+    ndbi_change: float = 0.0,
+    radiation_factor: float = 1.0
 ):
-
+    print(ndvi_change, ndbi_change, radiation_factor)
     result = predict_temperature(
-    latitude,
-    longitude,
-    plant_trees,
-    cool_roofs
-)
+        latitude,
+        longitude,
+        ndvi_change,
+        ndbi_change,
+        radiation_factor
+    )
 
     return {
         "latitude": latitude,
