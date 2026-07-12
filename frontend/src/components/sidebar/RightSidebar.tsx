@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Thermometer, Leaf, Activity, Cloud, Building, Droplets, Map, RotateCcw, Home } from 'lucide-react';
+import { Thermometer, Leaf, Activity, Cloud, Building, Droplets, Map, RotateCcw, Home, X } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 import { getDashboard } from '@/services/api';
@@ -23,9 +23,10 @@ const LULC_CLASSES = [
 interface RightSidebarProps {
   isOpen?: boolean;
   selectedLocation: { lat: number; lon: number } | null;
+  onClose?: () => void;
 }
 
-export default function RightSidebar({ isOpen = true, selectedLocation }: RightSidebarProps) {
+export default function RightSidebar({ isOpen = true, selectedLocation, onClose }: RightSidebarProps) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [backendData, setBackendData] = useState<any>(null);
   const [isLoadingBackend, setIsLoadingBackend] = useState(false);
@@ -60,10 +61,20 @@ export default function RightSidebar({ isOpen = true, selectedLocation }: RightS
       });
   }, [locationToQuery.lat, locationToQuery.lon]);
 
-  if (!data) return <aside className={`bg-white border-l h-full flex items-center justify-center text-sm text-slate-500 transition-all duration-300 ${isOpen ? 'w-[300px]' : 'w-0 border-l-0'}`}>Loading...</aside>;
+  if (!data) return <aside className={`fixed inset-y-0 right-0 md:static bg-white border-l h-full flex items-center justify-center text-sm text-slate-500 transition-all duration-300 z-40 ${isOpen ? 'w-[300px]' : 'w-0 border-l-0'}`}>Loading...</aside>;
 
   return (
-    <aside className={`bg-white border-slate-200/80 h-full overflow-hidden flex flex-col pt-14 flex-shrink-0 z-40 relative shadow-sm select-none transition-all duration-300 ${isOpen ? 'w-[300px] border-l' : 'w-0 border-l-0'}`}>
+    <aside className={`fixed inset-y-0 right-0 md:static bg-white border-slate-200/80 h-full overflow-hidden flex flex-col pt-14 flex-shrink-0 z-40 shadow-sm select-none transition-all duration-300 ${isOpen ? 'w-[300px] border-l' : 'w-0 border-l-0'}`}>
+      {onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close right sidebar"
+          className="md:hidden absolute left-2 top-16 z-50 rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+        >
+          <X size={16} />
+        </button>
+      )}
       <div className="w-[300px] h-full flex flex-col overflow-y-auto">
         {/* Header */}
         <div className="p-3 pb-2">

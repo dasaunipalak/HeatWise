@@ -26,6 +26,13 @@ export default function Dashboard() {
   const [tileError, setTileError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      setLeftOpen(false);
+      setRightOpen(false);
+    }
+  }, []);
+
+  useEffect(() => {
     if (!activeLayer || !mapBounds) {
       setTileUrl(null);
       setPreviousLayer(null);
@@ -80,13 +87,15 @@ export default function Dashboard() {
   }, [activeLayer, mapBounds]);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden">
+    <div className="relative flex h-[100dvh] w-screen overflow-hidden">
       <LeftSidebar
         isOpen={leftOpen}
         activeLayer={activeLayer}
         setActiveLayer={setActiveLayer}
+        selectedLocation={selectedLocation}
         setSelectedLocation={setSelectedLocation}
         isLoadingTile={isLoadingTile}
+        onClose={() => setLeftOpen(false)}
       />
 
       <MapArea
@@ -104,7 +113,11 @@ export default function Dashboard() {
       />
 
       {/* <RightSidebar isOpen={rightOpen} /> */}
-      <RightSidebar isOpen={rightOpen} selectedLocation={selectedLocation} />
+      <RightSidebar
+        isOpen={rightOpen}
+        selectedLocation={selectedLocation}
+        onClose={() => setRightOpen(false)}
+      />
     </div>
   );
 }

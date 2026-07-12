@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from app.weather import get_live_weather
 from app.api.v1.endpoints import map_layers
 from app.predictor import predict_temperature
 from fastapi.middleware.cors import CORSMiddleware
@@ -37,6 +38,7 @@ def home():
 
 
 @app.get("/predict")
+
 def predict(
     latitude: float,
     longitude: float,
@@ -58,3 +60,6 @@ def predict(
         "longitude": longitude,
         **result
     }
+@app.get("/weather")
+def weather(latitude: float, longitude: float):
+    return get_live_weather(latitude, longitude)

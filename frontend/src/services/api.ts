@@ -46,3 +46,27 @@ export const getPrediction = async (
 
   return response.json();
 };
+
+export interface LocationConditions {
+  AirTemp: number;
+  Humidity: number;
+  Wind: number;
+  WindDirection: number;
+  AQI: number | null;
+  AQIStatus: string;
+}
+
+export const getLocationConditions = async (
+  latitude: number,
+  longitude: number
+): Promise<LocationConditions> => {
+  const response = await fetch(
+    `${BASE_URL}/weather?latitude=${latitude}&longitude=${longitude}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch location conditions");
+  }
+
+  return response.json();
+};
