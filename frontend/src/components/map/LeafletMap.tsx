@@ -79,6 +79,19 @@ function BoundsWatcher({
     return null;
 }
 
+function ResizeWatcher() {
+    const map = useMap();
+    useEffect(() => {
+        const resizeObserver = new ResizeObserver(() => {
+            map.invalidateSize();
+        });
+        const container = map.getContainer();
+        if (container) resizeObserver.observe(container);
+        return () => resizeObserver.disconnect();
+    }, [map]);
+    return null;
+}
+
 export default function LeafletMap({
     selectedLocation,
     tileUrl,
@@ -92,6 +105,7 @@ export default function LeafletMap({
             style={{ height: "100%", width: "100%" }}
         >
             <BoundsWatcher onBoundsChange={onBoundsChange} />
+            <ResizeWatcher />
 
             <FlyToLocation selectedLocation={selectedLocation} />
 

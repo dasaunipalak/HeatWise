@@ -20,6 +20,7 @@ const LULC_CLASSES = [
   "Snow/Ice"           // 8
 ];
 
+
 interface RightSidebarProps {
   isOpen?: boolean;
   selectedLocation: { lat: number; lon: number } | null;
@@ -38,6 +39,7 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
   });
   const [isSimulating, setIsSimulating] = useState(false);
   const [hasSimulated, setHasSimulated] = useState(false);
+  const [hasEverSimulated, setHasEverSimulated] = useState(false);
   const [simulation, setSimulation] = useState<any>(null);
 
   // Fallback to Lucknow coordinates on initial load if no location is clicked yet
@@ -48,37 +50,37 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
   }, []);
 
   // Fetch real GEE static features and live weather data from backend when location changes
-useEffect(() => {
-  const controller = new AbortController();
+  useEffect(() => {
+    const controller = new AbortController();
 
-  setIsLoadingBackend(true);
+    setIsLoadingBackend(true);
 
-  getPrediction(
-    locationToQuery.lat,
-    locationToQuery.lon,
-    0,
-    0,
-    1,
-    controller.signal
-  )
-    .then((result) => {
-      setBackendData(result);
-    })
-    .catch((error) => {
-      if (error.name !== "AbortError") {
-        console.error("Failed to fetch backend metrics:", error);
-      }
-    })
-    .finally(() => {
-      if (!controller.signal.aborted) {
-        setIsLoadingBackend(false);
-      }
-    });
+    getPrediction(
+      locationToQuery.lat,
+      locationToQuery.lon,
+      0,
+      0,
+      1,
+      controller.signal
+    )
+      .then((result) => {
+        setBackendData(result);
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") {
+          console.error("Failed to fetch backend metrics:", error);
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setIsLoadingBackend(false);
+        }
+      });
 
-  return () => {
-    controller.abort();
-  };
-}, [locationToQuery.lat, locationToQuery.lon]);
+    return () => {
+      controller.abort();
+    };
+  }, [locationToQuery.lat, locationToQuery.lon]);
 
   if (!data) return <aside className={`fixed inset-y-0 right-0 md:static bg-white border-l h-full flex items-center justify-center text-sm text-slate-500 transition-all duration-300 z-40 ${isOpen ? 'w-[300px]' : 'w-0 border-l-0'}`}>Loading...</aside>;
 
@@ -103,8 +105,8 @@ useEffect(() => {
               <span className="pt-[1px]">Analysis</span>
             </h2>
             <span className="text-[9px] text-slate-400 font-mono">
-              {selectedLocation 
-                ? `${selectedLocation.lat.toFixed(4)}°, ${selectedLocation.lon.toFixed(4)}°` 
+              {selectedLocation
+                ? `${selectedLocation.lat.toFixed(4)}°, ${selectedLocation.lon.toFixed(4)}°`
                 : "Lucknow (Default)"}
             </span>
           </div>
@@ -125,102 +127,102 @@ useEffect(() => {
             {/* Insight Cards Grid */}
             <div className="p-3 grid grid-cols-2 gap-2.5">
               {/* Zone-average predicted surface temperature */}
-              <div className="bg-[#FFF6F6] border border-[#FCE4E4]/60 rounded-[10px] p-2.5 flex flex-col justify-center shadow-none">
+              <div className="bg-[#FFF6F6] border border-[#FCE4E4]/60 rounded-[10px] p-2.5 flex flex-col justify-between h-full shadow-none">
                 <div className="text-[10px] text-[#71717A] flex items-center gap-1.5 mb-1.5 font-medium">
                   <Thermometer size={12} className="text-[#ED4E4E]" /> Zone Surface Temp
                 </div>
                 <div className="text-[14px] font-semibold font-mono text-[#ED4E4E] mb-0.5 leading-none">
-                  {backendData 
-                    ? `${backendData.current_temperature.toFixed(1)}°C` 
+                  {backendData
+                    ? `${backendData.current_temperature.toFixed(1)}°C`
                     : data.insights.avgSurfaceTemp.value}
                 </div>
                 <div className="text-[9px] text-[#71717A] font-medium">
-                  {backendData 
+                  {backendData
                     ? "1 km zone ML prediction"
                     : data.insights.avgSurfaceTemp.subtext}
                 </div>
               </div>
 
               {/* Current weather at the selected zone */}
-              <div className="bg-[#F0FAFF] border border-[#E0F2FE]/60 rounded-[10px] p-2.5 flex flex-col justify-center shadow-none">
+              <div className="bg-[#F0FAFF] border border-[#E0F2FE]/60 rounded-[10px] p-2.5 flex flex-col justify-between h-full shadow-none">
                 <div className="text-[10px] text-[#71717A] flex items-center gap-1.5 mb-1.5 font-medium">
                   <Cloud size={12} className="text-[#0EA5E9]" /> Avg Air Temp
                 </div>
                 <div className="text-[14px] font-semibold font-mono text-[#0EA5E9] mb-0.5 leading-none">
-                  {backendData 
-                    ? `${backendData.weather.AirTemp.toFixed(1)}°C` 
+                  {backendData
+                    ? `${backendData.weather.AirTemp.toFixed(1)}°C`
                     : data.insights.avgAirTemp.value}
                 </div>
                 <div className="text-[9px] text-[#71717A] font-medium">
-                  {backendData 
+                  {backendData
                     ? "Current weather estimate"
                     : data.insights.avgAirTemp.subtext}
                 </div>
               </div>
 
               {/* Classified vegetation share within the zone */}
-              <div className="bg-[#F3FBF6] border border-[#D8F3E1]/60 rounded-[10px] p-2.5 flex flex-col justify-center shadow-none">
+              <div className="bg-[#F3FBF6] border border-[#D8F3E1]/60 rounded-[10px] p-2.5 flex flex-col justify-between h-full shadow-none">
                 <div className="text-[10px] text-[#71717A] flex items-center gap-1.5 mb-1.5 font-medium">
                   <Leaf size={12} className="text-[#1CC664]" /> Vegetation Cover
                 </div>
                 <div className="text-[14px] font-semibold font-mono text-[#1CC664] mb-0.5 leading-none">
-                  {backendData 
+                  {backendData
                     ? `${Math.round(backendData.static_features.Vegetation_Cover * 100)}%`
                     : data.insights.greenCover.value}
                 </div>
                 <div className="text-[9px] text-[#71717A] font-medium">
-                  {backendData 
-                    ? `NDVI: ${backendData.static_features.NDVI.toFixed(2)}` 
+                  {backendData
+                    ? `NDVI: ${backendData.static_features.NDVI.toFixed(2)}`
                     : data.insights.greenCover.subtext}
                 </div>
               </div>
 
               {/* Classified built-up share within the zone */}
-              <div className="bg-[#F8F5FF] border border-[#EAE0FE]/60 rounded-[10px] p-2.5 flex flex-col justify-center shadow-none">
+              <div className="bg-[#F8F5FF] border border-[#EAE0FE]/60 rounded-[10px] p-2.5 flex flex-col justify-between h-full shadow-none">
                 <div className="text-[10px] text-[#71717A] flex items-center gap-1.5 mb-1.5 font-medium">
                   <Building size={12} className="text-[#A36AF5]" /> Built-up Cover
                 </div>
                 <div className="text-[14px] font-semibold font-mono text-[#A36AF5] mb-0.5 leading-none">
-                  {backendData 
+                  {backendData
                     ? `${Math.round(backendData.static_features.BuiltUp_Cover * 100)}%`
                     : data.insights.builtUpArea.value}
                 </div>
                 <div className="text-[9px] text-[#71717A] font-medium">
-                  {backendData 
-                    ? "Dynamic World confident built-up share" 
+                  {backendData
+                    ? "Dynamic World confident built-up share"
                     : data.insights.builtUpArea.subtext}
                 </div>
               </div>
 
               {/* Classified water share within the zone */}
-              <div className="bg-[#F0F7FF] border border-[#DDECFF]/60 rounded-[10px] p-2.5 flex flex-col justify-center shadow-none">
+              <div className="bg-[#F0F7FF] border border-[#DDECFF]/60 rounded-[10px] p-2.5 flex flex-col justify-between h-full shadow-none">
                 <div className="text-[10px] text-[#71717A] flex items-center gap-1.5 mb-1.5 font-medium">
                   <Droplets size={12} className="text-[#3B82F6]" /> Water Coverage
                 </div>
                 <div className="text-[14px] font-semibold font-mono text-[#3B82F6] mb-0.5 leading-none">
-                  {backendData 
+                  {backendData
                     ? `${Math.round(backendData.static_features.Water_Cover * 100)}%`
                     : data.insights.waterCoverage.value}
                 </div>
                 <div className="text-[9px] text-[#71717A] font-medium">
-                  {backendData 
-                    ? `NDWI: ${backendData.static_features.NDWI.toFixed(2)}` 
+                  {backendData
+                    ? `NDWI: ${backendData.static_features.NDWI.toFixed(2)}`
                     : data.insights.waterCoverage.subtext}
                 </div>
               </div>
 
               {/* Most common Dynamic World class in the zone */}
-              <div className="bg-[#FFFBF0] border border-[#FEF0C7]/60 rounded-[10px] p-2.5 flex flex-col justify-center shadow-none">
+              <div className="bg-[#FFFBF0] border border-[#FEF0C7]/60 rounded-[10px] p-2.5 flex flex-col justify-between h-full shadow-none">
                 <div className="text-[10px] text-[#71717A] flex items-center gap-1.5 mb-1.5 font-medium">
                   <Map size={12} className="text-[#F59E0B]" /> Dominant Zone Land
                 </div>
                 <div className="text-[14px] font-semibold font-mono text-[#F59E0B] mb-0.5 leading-none">
-                  {backendData 
-                    ? (LULC_CLASSES[backendData.static_features.LULC_Map] || "Unknown") 
+                  {backendData
+                    ? (LULC_CLASSES[backendData.static_features.LULC_Map] || "Unknown")
                     : data.insights.dominantLandType.value}
                 </div>
                 <div className="text-[9px] text-[#71717A] font-medium">
-                  {backendData 
+                  {backendData
                     ? "Most common class in 1 km zone"
                     : data.insights.dominantLandType.subtext}
                 </div>
@@ -229,50 +231,50 @@ useEffect(() => {
 
             {/* Recommendations Section */}
             <div className="px-4 pb-4 flex flex-col gap-3.5">
-  <h3 className="text-[12px] font-bold text-slate-800 mt-2">
-    Recommendations for this area
-  </h3>
+              <h3 className="text-[12px] font-bold text-slate-800 mt-2">
+                Recommendations for this area
+              </h3>
 
-  {isLoadingBackend ? (
-    <p className="text-[10px] text-slate-500">
-      Analysing local heat drivers…
-    </p>
-  ) : backendData?.recommendations?.length ? (
-    backendData.recommendations.map(
-      (recommendation: {
-        priority: "critical" | "high" | "medium" | "low";
-        title: string;
-        message: string;
-      }, index: number) => {
-        const styles = {
-          critical: "bg-[#FFF6F6] border-[#FCE4E4] text-[#ED4E4E]",
-          high: "bg-[#FFF7F4] border-[#FCE8E1] text-[#F05A28]",
-          medium: "bg-[#F4F8FE] border-[#E1EEFD] text-[#5898F6]",
-          low: "bg-[#F3FBF6] border-[#D8F3E1] text-[#1CC664]",
-        };
+              {isLoadingBackend ? (
+                <p className="text-[10px] text-slate-500">
+                  Analysing local heat drivers…
+                </p>
+              ) : backendData?.recommendations?.length ? (
+                backendData.recommendations.map(
+                  (recommendation: {
+                    priority: "critical" | "high" | "medium" | "low";
+                    title: string;
+                    message: string;
+                  }, index: number) => {
+                    const styles = {
+                      critical: "bg-[#FFF6F6] border-[#FCE4E4] text-[#ED4E4E]",
+                      high: "bg-[#FFF7F4] border-[#FCE8E1] text-[#F05A28]",
+                      medium: "bg-[#F4F8FE] border-[#E1EEFD] text-[#5898F6]",
+                      low: "bg-[#F3FBF6] border-[#D8F3E1] text-[#1CC664]",
+                    };
 
-        return (
-          <div
-            key={index}
-            className={`border rounded-xl p-4 flex flex-col gap-2 ${styles[recommendation.priority]}`}
-          >
-            <div className="text-[11px] font-semibold">
-              {recommendation.title}
+                    return (
+                      <div
+                        key={index}
+                        className={`border rounded-xl p-4 flex flex-col gap-2 ${styles[recommendation.priority]}`}
+                      >
+                        <div className="text-[11px] font-semibold">
+                          {recommendation.title}
+                        </div>
+
+                        <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
+                          {recommendation.message}
+                        </p>
+                      </div>
+                    );
+                  }
+                )
+              ) : (
+                <p className="text-[10px] text-slate-500">
+                  Select a location to view its heat analysis.
+                </p>
+              )}
             </div>
-
-            <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
-              {recommendation.message}
-            </p>
-          </div>
-        );
-      }
-    )
-  ) : (
-    <p className="text-[10px] text-slate-500">
-      Select a location to view its heat analysis.
-    </p>
-  )}
-</div>
           </TabsContent>
 
           <TabsContent value="simulate" className="m-0 outline-none p-4 flex flex-col gap-4 pb-24 h-full overflow-y-auto overflow-x-hidden">
@@ -296,7 +298,6 @@ useEffect(() => {
                 {[
                   { id: 'treeCover', label: 'Tree Cover', icon: Leaf, color: 'text-green-500', max: 100 },
                   { id: 'coolRoofs', label: 'Cool Roofs', icon: Home, color: 'text-blue-500', max: 100 },
-                  { id: 'waterFeatures', label: 'Water Features', icon: Droplets, color: 'text-cyan-500', max: 100 },
                   { id: 'reflectiveSurfaces', label: 'Built-up Density', icon: Building, color: 'text-purple-500', max: 100 },
                 ].map((item) => (
                   <div key={item.id} className="flex flex-col gap-1.5">
@@ -340,6 +341,7 @@ useEffect(() => {
 
                   setSimulation(result);
                   setHasSimulated(true);
+                  setHasEverSimulated(true);
                 } catch (err) {
                   console.error(err);
                 }
@@ -347,110 +349,182 @@ useEffect(() => {
                 setIsSimulating(false);
               }}
               disabled={isSimulating}
-              className="w-full bg-[#F05A28] hover:bg-[#E04D1E] text-white font-bold text-[12px] py-3 rounded-xl shadow-[0_2px_10px_rgba(240,90,40,0.2)] transition-all flex items-center justify-center disabled:opacity-70"
+              className="w-full bg-[#F05A28] hover:bg-[#E04D1E] text-white font-bold text-[12px] py-3 rounded-xl shadow-[0_2px_10px_rgba(240,90,40,0.2)] transition-all flex items-center justify-center disabled:opacity-70 relative overflow-hidden"
             >
-              {isSimulating ? (
-                <span className="flex items-center gap-2">
+              <div className="relative w-full h-4 flex items-center justify-center">
+                <span className={`absolute flex items-center gap-2 transition-all duration-300 ${isSimulating ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
                   <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                   Running Simulation...
                 </span>
-              ) : 'Run Simulation'}
+                <span className={`absolute flex items-center gap-1.5 transition-all duration-300 ${!isSimulating && hasEverSimulated ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'}`}>
+                  Update Simulation
+                </span>
+                <span className={`absolute flex items-center gap-1.5 transition-all duration-300 ${!isSimulating && !hasEverSimulated ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'}`}>
+                  Run Simulation
+                </span>
+              </div>
             </button>
+
+            {/* Success Message */}
+            <div className={`flex items-center justify-center gap-1.5 text-[10px] font-bold text-[#1CC664] transition-all duration-500 overflow-hidden ${hasSimulated && !isSimulating ? 'opacity-100 max-h-10 mt-1 mb-1' : 'opacity-0 max-h-0 m-0'}`}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              Simulation Complete
+            </div>
 
             {/* Sections 3, 4, 5: Results */}
             <div className={`flex flex-col gap-4 transition-all duration-500 overflow-hidden ${hasSimulated ? 'opacity-100 max-h-[1000px]' : 'opacity-0 max-h-0'}`}>
               {/* Simulation Results */}
-              <div className="grid grid-cols-3 gap-2">
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex flex-col items-center justify-center text-center">
-                  <span className="text-[9px] text-slate-500 font-medium mb-1 line-clamp-1">
-                    Current
+              <div className="w-full bg-white border border-slate-200 rounded-2xl p-4 shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center relative overflow-hidden">
+                <h3 className="text-[12px] font-bold text-slate-800 self-start mb-3 z-10">Simulation Results</h3>
+
+                <div className="flex flex-col items-center justify-center text-center z-10 w-full mb-3 mt-1">
+                  <span className="text-[26px] font-black text-[#1CC664] font-mono tracking-tighter leading-none mb-1.5">
+                    {simulation ? `-${Math.abs(simulation.temperature_change).toFixed(2)}°C` : "--"}
                   </span>
-                  <span className="text-[13px] font-bold text-slate-700 font-mono">
-                    {simulation ? `${simulation.current_temperature.toFixed(2)}°C` : "--"}
+                  <span className="text-[10px] font-bold text-slate-700 uppercase tracking-widest mt-0.5 mb-0.5">
+                    Cooling Achieved
+                  </span>
+                  <span className="text-[8px] text-slate-500 font-medium max-w-[80%]">
+                    Estimated reduction in average surface temp
                   </span>
                 </div>
 
-                <div className="bg-orange-50 border border-orange-100 rounded-lg p-2.5 flex flex-col items-center justify-center text-center">
-                  <span className="text-[9px] text-orange-600/80 font-medium mb-1 line-clamp-1">
-                    Simulated
-                  </span>
-                  <span className="text-[13px] font-bold text-orange-600 font-mono">
-                    {simulation ? `${simulation.predicted_temperature.toFixed(2)}°C` : "--"}
-                  </span>
-                </div>
+                <div className="w-full h-[1px] bg-slate-100 mb-4 z-10"></div>
 
-                <div className="bg-[#F3FBF6] border border-[#1CC664]/30 rounded-lg p-2.5 flex flex-col items-center justify-center text-center shadow-sm">
-                  <span className="text-[9px] text-green-700/80 font-medium mb-1 line-clamp-1">
-                    Reduction
-                  </span>
-                  <span className="text-[15px] font-bold text-[#1CC664] font-mono">
-                    {simulation
-                      ? `${Math.abs(simulation.temperature_change).toFixed(2)}°C`
-                      : "--"}
-                  </span>
+                <div className="w-full flex items-center justify-between z-10 px-1">
+                  <div className="flex flex-col items-center">
+                    <span className="text-[9px] text-slate-400 font-semibold mb-1 flex items-center gap-1 uppercase tracking-wider">
+                      <Thermometer size={10} className="text-slate-300"/> Current
+                    </span>
+                    <span className="text-[13px] font-bold text-slate-700 font-mono">
+                      {simulation ? `${simulation.current_temperature.toFixed(2)}°C` : "--"}
+                    </span>
+                  </div>
+
+                  <div className="text-slate-300 px-2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </div>
+
+                  <div className="flex flex-col items-center">
+                    <span className="text-[9px] text-orange-500/80 font-semibold mb-1 flex items-center gap-1 uppercase tracking-wider">
+                      <Thermometer size={10} className="text-orange-300"/> Simulated
+                    </span>
+                    <span className="text-[13px] font-bold text-orange-600 font-mono">
+                      {simulation ? `${simulation.predicted_temperature.toFixed(2)}°C` : "--"}
+                    </span>
+                  </div>
                 </div>
               </div>
 
               {/* Intervention Impact */}
-              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col gap-3">
-                <h3 className="text-[12px] font-bold text-slate-800">
-                  Applied Interventions
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-[0_2px_10px_rgba(0,0,0,0.04)] flex flex-col gap-0">
+                <h3 className="text-[12px] font-bold text-slate-800 mb-3">
+                  Intervention Impact
                 </h3>
 
-                <div className="space-y-3">
+                <div className="flex flex-col">
+                  {(() => {
+                    const wTree = interventions.treeCover * 0.014;
+                    const wRoof = interventions.coolRoofs * 0.012;
+                    const wSurface = interventions.reflectiveSurfaces * 0.007;
+                    const totalW = wTree + wRoof + wSurface;
+                    const totalReduction = simulation ? Math.abs(simulation.temperature_change) : 0;
 
-                  <div>
-                    <div className="flex justify-between text-[10px] mb-1">
-                      <span>Tree Cover</span>
-                      <span>{interventions.treeCover}%</span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2">
-                      <div
-                        className="bg-green-500 h-2 rounded-full"
-                        style={{ width: `${interventions.treeCover}%` }}
-                      />
-                    </div>
-                  </div>
+                    const impacts = [
+                      {
+                        id: 'treeCover',
+                        label: 'Tree Cover',
+                        icon: Leaf,
+                        iconColor: 'text-green-500',
+                        desc: 'Provides shading and evapotranspiration.',
+                        value: totalW > 0 ? totalReduction * (wTree / totalW) : 0
+                      },
+                      {
+                        id: 'coolRoofs',
+                        label: 'Cool Roofs',
+                        icon: Home,
+                        iconColor: 'text-blue-500',
+                        desc: 'Reduces rooftop heat absorption.',
+                        value: totalW > 0 ? totalReduction * (wRoof / totalW) : 0
+                      },
+                      {
+                        id: 'reflectiveSurfaces',
+                        label: 'Built-up Density',
+                        icon: Building,
+                        iconColor: 'text-purple-500',
+                        desc: 'Modifies heat retention of urban materials.',
+                        value: totalW > 0 ? totalReduction * (wSurface / totalW) : 0
+                      }
+                    ];
 
-                  <div>
-                    <div className="flex justify-between text-[10px] mb-1">
-                      <span>Cool Roofs</span>
-                      <span>{interventions.coolRoofs}%</span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2">
-                      <div
-                        className="bg-blue-500 h-2 rounded-full"
-                        style={{ width: `${interventions.coolRoofs}%` }}
-                      />
-                    </div>
-                  </div>
+                    return impacts.map((item, index) => {
+                      if (interventions[item.id as keyof typeof interventions] === 0) return null;
+                      return (
+                        <div key={item.id} className="flex flex-col py-2.5 border-b border-slate-100 last:border-0 first:pt-0 last:pb-0">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-700">
+                              <item.icon size={13} className={item.iconColor} /> {item.label}
+                            </div>
+                            <div className="text-[11px] font-mono font-bold text-[#1CC664] flex items-center gap-1">
+                              ↓ {item.value.toFixed(1)}°C
+                            </div>
+                          </div>
+                          <div className="text-[9px] text-slate-500 mt-1 pl-5">
+                            {item.desc}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
 
-                  <div>
-                    <div className="flex justify-between text-[10px] mb-1">
-                      <span>Built-up Density</span>
-                      <span>{interventions.reflectiveSurfaces}%</span>
+                  {interventions.treeCover === 0 && interventions.coolRoofs === 0 && interventions.reflectiveSurfaces === 0 && (
+                    <div className="text-[10px] text-slate-400 italic text-center py-2">
+                      No interventions applied.
                     </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2">
-                      <div
-                        className="bg-purple-500 h-2 rounded-full"
-                        style={{ width: `${interventions.reflectiveSurfaces}%` }}
-                      />
-                    </div>
-                  </div>
-
+                  )}
                 </div>
               </div>
 
-              {/* AI Summary */}
-              <div className="bg-[#F8FAFC] border border-slate-200 rounded-xl p-3 flex flex-col gap-2">
-                <div className="text-[10px] text-slate-800 font-bold flex items-center gap-1.5">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m11.5 2 2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5 2.5-6Z" /></svg>
-                  AI Summary
+              {/* Simulation Summary */}
+              <div className={`bg-white border border-slate-200 rounded-xl p-4 flex flex-col gap-2.5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all duration-700 delay-300 ${hasSimulated && !isSimulating ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+                <div className="text-[11px] text-slate-800 font-bold flex items-center gap-1.5 uppercase tracking-wider">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F05A28" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m11.5 2 2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5 2.5-6Z" /></svg>
+                  Simulation Summary
                 </div>
-                <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
-                  {simulation
-                    ? simulation.drivers.join(". ") + "."
-                    : "Run a simulation to receive AI insights."}
+                <p className="text-[10.5px] text-slate-600 leading-relaxed font-medium">
+                  {(() => {
+                    if (!simulation || Math.abs(simulation.temperature_change) < 0.01) {
+                      return "No significant cooling achieved. Adjust the intervention sliders to simulate temperature reductions.";
+                    }
+                    
+                    const wTree = interventions.treeCover * 0.014;
+                    const wRoof = interventions.coolRoofs * 0.012;
+                    const wSurface = interventions.reflectiveSurfaces * 0.007;
+                    const totalReduction = Math.abs(simulation.temperature_change);
+
+                    const items = [
+                      { name: 'tree cover', weight: wTree },
+                      { name: 'cool roofs', weight: wRoof },
+                      { name: 'built-up density optimization', weight: wSurface },
+                    ].filter(i => i.weight > 0).sort((a, b) => b.weight - a.weight);
+
+                    if (items.length === 0) return "Run a simulation to evaluate the impact of your interventions.";
+
+                    let appliedStr = items.map(i => i.name).join(" and ");
+                    if (items.length === 3) {
+                      appliedStr = `${items[0].name}, ${items[1].name}, and ${items[2].name}`;
+                    }
+                    
+                    const topStr = items.length > 1 
+                      ? `${items[0].name.charAt(0).toUpperCase() + items[0].name.slice(1)} contributed the largest cooling effect, followed by ${items[1].name}.` 
+                      : `Increasing ${items[0].name} was the primary driver of this temperature drop.`;
+
+                    return (
+                      <>
+                        Increasing {appliedStr} is estimated to reduce the average surface temperature by <span className="font-bold text-[#F05A28]">{totalReduction.toFixed(1)}°C</span>. {topStr} Together, these interventions reduce heat absorption and improve natural cooling across the selected area.
+                      </>
+                    );
+                  })()}
                 </p>
               </div>
             </div>

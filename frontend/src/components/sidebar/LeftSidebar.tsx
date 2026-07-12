@@ -47,6 +47,17 @@ const windDirectionLabel = (degrees: number) => {
   return directions[Math.round(degrees / 45) % directions.length];
 };
 
+const getAQIColor = (status: string) => {
+  const s = status.toLowerCase();
+  if (s.includes('good')) return { bg: '#F0FDF4', border: '#DCFCE7', text: '#166534' }; // green
+  if (s.includes('moderate')) return { bg: '#FEFCE8', border: '#FEF08A', text: '#854D0E' }; // yellow
+  if (s.includes('sensitive')) return { bg: '#FFF7ED', border: '#FED7AA', text: '#C2410C' }; // orange
+  if (s.includes('very unhealthy')) return { bg: '#FAF5FF', border: '#E9D5FF', text: '#6B21A8' }; // purple
+  if (s.includes('unhealthy')) return { bg: '#FEF2F2', border: '#FECACA', text: '#991B1B' }; // red
+  if (s.includes('hazardous')) return { bg: '#FFF1F2', border: '#FECDD3', text: '#9F1239' }; // rose
+  return { bg: '#F8F9FB', border: '#E5E7EB', text: '#6B7280' }; // gray
+};
+
 export default function LeftSidebar({
   isOpen = true,
   activeLayer,
@@ -86,7 +97,7 @@ export default function LeftSidebar({
           {
             id: 'ndbi_builtup',
             name: 'Built-up Density (NDBI)',
-            color: '#ea580c',
+            color: '#A36AF5',
             active: false,
           },
           {
@@ -98,7 +109,7 @@ export default function LeftSidebar({
           {
             id: 'lulc_classification',
             name: 'Land Use Classification (LULC)',
-            color: '#8b5cf6',
+            color: '#F59E0B',
             active: false,
           },
         ],
@@ -333,22 +344,7 @@ export default function LeftSidebar({
           </div>
         </div>
 
-        <div className="space-y-2">
-          <h3 className="text-[9px] font-semibold text-[#8F95A1] tracking-[0.12em] uppercase">
-            Time Range
-          </h3>
 
-          <div className="flex items-center justify-between border border-[#E5E7EB] rounded-lg px-3 py-2 cursor-pointer hover:bg-slate-50 hover:border-slate-300 transition-all bg-[#F8F9FB] shadow-[0_1px_2px_rgba(0,0,0,0.02)] duration-200">
-            <div className="flex items-center gap-2">
-              <Calendar size={15} className="text-[#F05A28]" />
-              <span className="text-[11px] font-medium text-slate-700">
-                {data.timeRange}
-              </span>
-            </div>
-
-            <ChevronDown size={14} className="text-slate-400" />
-          </div>
-        </div>
 
         <div className="space-y-3.5">
           <h3 className="text-[9px] font-semibold text-[#8F95A1] tracking-[0.12em] uppercase">
@@ -360,35 +356,6 @@ export default function LeftSidebar({
               const isLayerActive = layer.id === activeLayer;
 
               let iconComponent = null;
-
-              if (layer.id === 'ndbi_builtup') {
-                iconComponent = (
-                  <Building2
-                    size={13}
-                    className={
-                      isLayerActive ? 'text-[#ea580c]' : 'text-slate-400'
-                    }
-                  />
-                );
-              } else if (layer.id === 'ndwi_water') {
-                iconComponent = (
-                  <Droplet
-                    size={13}
-                    className={
-                      isLayerActive ? 'text-[#0ea5e9]' : 'text-slate-400'
-                    }
-                  />
-                );
-              } else if (layer.id === 'lulc_classification') {
-                iconComponent = (
-                  <Layers
-                    size={13}
-                    className={
-                      isLayerActive ? 'text-[#8b5cf6]' : 'text-slate-400'
-                    }
-                  />
-                );
-              }
 
               return (
                 <div key={layer.id} className="flex items-center justify-between">
@@ -473,22 +440,34 @@ export default function LeftSidebar({
               </div>
             </div>
 
-            <div className="flex items-center justify-between bg-[#F8F9FB] hover:bg-slate-50 rounded-xl px-3 py-2.5 transition-all duration-200">
-              <div className="flex items-center gap-2.5">
-                <div className="text-[#F59E0B]">
-                  <Activity size={15} />
+            <div className="flex flex-col bg-[#F8F9FB] hover:bg-slate-50 rounded-xl transition-all duration-200 overflow-hidden border border-transparent hover:border-slate-200">
+              <div className="flex items-center justify-between px-3 py-2.5">
+                <div className="flex items-center gap-2.5">
+                  <div className="text-[#F59E0B]">
+                    <Activity size={15} />
+                  </div>
+                  <span className="text-[10.5px] font-medium text-[#6B7280]">
+                    AQI Index
+                  </span>
                 </div>
-                <span className="text-[10.5px] font-medium text-[#6B7280]">
-                  AQI Index
-                </span>
+
+                <div className="font-mono text-[12px] font-bold text-slate-800">
+                  {weather?.AQI ?? '—'}
+                </div>
               </div>
 
-              <div className="text-right font-mono text-[11px] font-bold text-slate-800">
-                {weather?.AQI ?? '—'}{' '}
-                <span className="text-[10px]">
-                  {weather?.AQIStatus ?? ''}
-                </span>
-              </div>
+              {weather?.AQIStatus && (
+                <div 
+                  className="px-3 py-1.5 border-t text-[10px] font-semibold text-center tracking-wide" 
+                  style={{ 
+                    backgroundColor: getAQIColor(weather.AQIStatus).bg, 
+                    borderColor: getAQIColor(weather.AQIStatus).border, 
+                    color: getAQIColor(weather.AQIStatus).text 
+                  }}
+                >
+                  {weather.AQIStatus}
+                </div>
+              )}
             </div>
           </div>
         </div>

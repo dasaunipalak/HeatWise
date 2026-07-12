@@ -25,28 +25,6 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 bg-[#273130] border border-[#273130] px-3 py-1 rounded-full text-[9px] font-bold tracking-wide text-[#20C969]">
-          <span className="w-1.5 h-1.5 bg-[#20C969] rounded-full animate-pulse"></span>
-          LIVE
-        </div>
-        <div className="flex items-center gap-1.5 ml-2">
-          <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white hover:bg-[#2D333E] h-8 w-8 rounded-lg transition-all duration-200">
-            <RefreshCw size={15} />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white hover:bg-[#2D333E] h-8 w-8 rounded-lg transition-all duration-200">
-            <Download size={15} />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white hover:bg-[#2D333E] h-8 w-8 rounded-lg relative transition-all duration-200">
-            <Bell size={15} />
-            <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-[#1e2530]"></span>
-          </Button>
-          <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white hover:bg-[#2D333E] h-8 w-8 rounded-lg transition-all duration-200">
-            <Settings size={15} />
-          </Button>
-        </div>
-        <div className="w-7 h-7 rounded-full bg-[#F05A28] flex items-center justify-center text-[8px] font-bold text-white ml-2 cursor-pointer hover:ring-2 hover:ring-[#F05A28]/50 hover:scale-105 active:scale-95 transition-all shadow-sm">
-          AW
-        </div>
       </div>
     </header>
   );
