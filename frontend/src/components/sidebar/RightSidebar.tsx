@@ -185,7 +185,7 @@ export default function RightSidebar({ isOpen = true }: { isOpen?: boolean }) {
                   { id: 'treeCover', label: 'Tree Cover', icon: Leaf, color: 'text-green-500', max: 100 },
                   { id: 'coolRoofs', label: 'Cool Roofs', icon: Home, color: 'text-blue-500', max: 100 },
                   { id: 'waterFeatures', label: 'Water Features', icon: Droplets, color: 'text-cyan-500', max: 100 },
-                  { id: 'reflectiveSurfaces', label: 'Reflective Surfaces', icon: Sun, color: 'text-amber-500', max: 100 },
+                  { id: 'reflectiveSurfaces', label: 'Built-up Density', icon: Building, color: 'text-purple-500', max: 100 },
                 ].map((item) => (
                   <div key={item.id} className="flex flex-col gap-1.5">
                     <div className="flex items-center justify-between text-[11px] font-medium text-slate-700">
@@ -250,52 +250,82 @@ export default function RightSidebar({ isOpen = true }: { isOpen?: boolean }) {
               {/* Simulation Results */}
               <div className="grid grid-cols-3 gap-2">
                 <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex flex-col items-center justify-center text-center">
-                  <span className="text-[9px] text-slate-500 font-medium mb-1 line-clamp-1">Current</span>
-                  <span className="text-[13px] font-bold text-slate-700 font-mono">41.2°C</span>
-                </div>
-                <div className="bg-orange-50 border border-orange-100 rounded-lg p-2.5 flex flex-col items-center justify-center text-center">
-                  <span className="text-[9px] text-orange-600/80 font-medium mb-1 line-clamp-1">Simulated</span>
-                  <span className="text-[13px] font-bold text-orange-600 font-mono">
-                    {(41.2 - (interventions.treeCover * 0.014 + interventions.coolRoofs * 0.012 + interventions.reflectiveSurfaces * 0.007 + interventions.waterFeatures * 0.003)).toFixed(1)}°C
+                  <span className="text-[9px] text-slate-500 font-medium mb-1 line-clamp-1">
+                    Current
+                  </span>
+                  <span className="text-[13px] font-bold text-slate-700 font-mono">
+                    {simulation ? `${simulation.current_temperature.toFixed(2)}°C` : "--"}
                   </span>
                 </div>
+
+                <div className="bg-orange-50 border border-orange-100 rounded-lg p-2.5 flex flex-col items-center justify-center text-center">
+                  <span className="text-[9px] text-orange-600/80 font-medium mb-1 line-clamp-1">
+                    Simulated
+                  </span>
+                  <span className="text-[13px] font-bold text-orange-600 font-mono">
+                    {simulation ? `${simulation.predicted_temperature.toFixed(2)}°C` : "--"}
+                  </span>
+                </div>
+
                 <div className="bg-[#F3FBF6] border border-[#1CC664]/30 rounded-lg p-2.5 flex flex-col items-center justify-center text-center shadow-sm">
-                  <span className="text-[9px] text-green-700/80 font-medium mb-1 line-clamp-1">Reduction</span>
+                  <span className="text-[9px] text-green-700/80 font-medium mb-1 line-clamp-1">
+                    Reduction
+                  </span>
                   <span className="text-[15px] font-bold text-[#1CC664] font-mono">
-                    -{(interventions.treeCover * 0.014 + interventions.coolRoofs * 0.012 + interventions.reflectiveSurfaces * 0.007 + interventions.waterFeatures * 0.003).toFixed(1)}°C
+                    {simulation
+                      ? `${Math.abs(simulation.temperature_change).toFixed(2)}°C`
+                      : "--"}
                   </span>
                 </div>
               </div>
 
               {/* Intervention Impact */}
               <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col gap-3">
-                <h3 className="text-[12px] font-bold text-slate-800">Intervention Impact</h3>
-                <div className="flex flex-col gap-2.5">
-                  {[
-                    { id: 'treeCover', label: 'Tree Cover', icon: Leaf, color: 'bg-green-500', factor: 0.014 },
-                    { id: 'coolRoofs', label: 'Cool Roofs', icon: Home, color: 'bg-blue-500', factor: 0.012 },
-                    { id: 'reflectiveSurfaces', label: 'Reflective Surfaces', icon: Sun, color: 'bg-amber-500', factor: 0.007 },
-                    { id: 'waterFeatures', label: 'Water Features', icon: Droplets, color: 'bg-cyan-500', factor: 0.003 },
-                  ].sort((a, b) => (interventions[b.id as keyof typeof interventions] * b.factor) - (interventions[a.id as keyof typeof interventions] * a.factor)).map((item) => {
-                    const reduction = (interventions[item.id as keyof typeof interventions] * item.factor);
-                    const maxTotal = 100 * 0.014 + 100 * 0.012 + 100 * 0.007 + 100 * 0.003;
-                    const width = Math.max(0, (reduction / (maxTotal * 0.5)) * 100); // Scale up visually for small values
-                    if (reduction === 0) return null;
-                    return (
-                      <div key={item.id} className="flex flex-col gap-1">
-                        <div className="flex items-center justify-between text-[10px] font-medium text-slate-600">
-                          <div className="flex items-center gap-1.5"><item.icon size={10} className="text-slate-400" /> {item.label}</div>
-                          <span className="font-mono font-bold text-slate-700">↓ {reduction.toFixed(1)}°C</span>
-                        </div>
-                        <div className="w-full bg-slate-100 rounded-full h-1.5 flex overflow-hidden">
-                          <div className={`h-full ${item.color} rounded-full transition-all duration-500`} style={{ width: `${Math.min(100, width)}%` }}></div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {interventions.treeCover === 0 && interventions.coolRoofs === 0 && interventions.reflectiveSurfaces === 0 && interventions.waterFeatures === 0 && (
-                    <div className="text-[10px] text-slate-400 italic text-center py-2">No interventions selected.</div>
-                  )}
+                <h3 className="text-[12px] font-bold text-slate-800">
+                  Applied Interventions
+                </h3>
+
+                <div className="space-y-3">
+
+                  <div>
+                    <div className="flex justify-between text-[10px] mb-1">
+                      <span>Tree Cover</span>
+                      <span>{interventions.treeCover}%</span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2">
+                      <div
+                        className="bg-green-500 h-2 rounded-full"
+                        style={{ width: `${interventions.treeCover}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-[10px] mb-1">
+                      <span>Cool Roofs</span>
+                      <span>{interventions.coolRoofs}%</span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2">
+                      <div
+                        className="bg-blue-500 h-2 rounded-full"
+                        style={{ width: `${interventions.coolRoofs}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-[10px] mb-1">
+                      <span>Built-up Density</span>
+                      <span>{interventions.reflectiveSurfaces}%</span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2">
+                      <div
+                        className="bg-purple-500 h-2 rounded-full"
+                        style={{ width: `${interventions.reflectiveSurfaces}%` }}
+                      />
+                    </div>
+                  </div>
+
                 </div>
               </div>
 
@@ -306,13 +336,9 @@ export default function RightSidebar({ isOpen = true }: { isOpen?: boolean }) {
                   AI Summary
                 </div>
                 <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
-                  {(interventions.treeCover === 0 && interventions.coolRoofs === 0 && interventions.reflectiveSurfaces === 0 && interventions.waterFeatures === 0)
-                    ? 'Apply interventions above to see their simulated impact on the environment.'
-                    : <>
-                      {(interventions.treeCover * 0.014) >= (interventions.coolRoofs * 0.012) ? 'Increasing tree cover produced the largest reduction in surface temperature. ' : 'Adding cool roofs produced the largest reduction in surface temperature. '}
-                      {(interventions.waterFeatures > 0 || interventions.reflectiveSurfaces > 0) && 'Water features and reflective surfaces provided additional localized cooling.'}
-                    </>
-                  }
+                  {simulation
+                    ? simulation.drivers.join(". ") + "."
+                    : "Run a simulation to receive AI insights."}
                 </p>
               </div>
             </div>

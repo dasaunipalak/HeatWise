@@ -1,9 +1,15 @@
 from fastapi import FastAPI
 from app.api.v1.endpoints import map_layers
 from app.predictor import predict_temperature
-
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(
 
     map_layers.router,
