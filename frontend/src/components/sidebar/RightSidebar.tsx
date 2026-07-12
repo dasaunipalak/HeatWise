@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 import { getDashboard } from '@/services/api';
 import { DashboardData } from '@/types';
-
+import { getPrediction } from "@/services/api";
 export default function RightSidebar({ isOpen = true }: { isOpen?: boolean }) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [interventions, setInterventions] = useState({
@@ -17,7 +17,7 @@ export default function RightSidebar({ isOpen = true }: { isOpen?: boolean }) {
   });
   const [isSimulating, setIsSimulating] = useState(false);
   const [hasSimulated, setHasSimulated] = useState(false);
-
+  const [simulation, setSimulation] = useState<any>(null);
   useEffect(() => {
     getDashboard().then((res) => setData(res as DashboardData));
   }, []);
@@ -212,12 +212,27 @@ export default function RightSidebar({ isOpen = true }: { isOpen?: boolean }) {
 
             {/* Section 2: Run Simulation */}
             <button
-              onClick={() => {
+              onClick={async () => {
                 setIsSimulating(true);
-                setTimeout(() => {
-                  setIsSimulating(false);
+
+                try {
+                  const result = await getPrediction(
+                    26.8467,
+                    80.9462,
+                    interventions.treeCover / 100,
+                    interventions.reflectiveSurfaces / 100,
+                    1 - interventions.coolRoofs / 200
+                  );
+
+                  console.log(result);
+
+                  setSimulation(result);
                   setHasSimulated(true);
-                }, 1200);
+                } catch (err) {
+                  console.error(err);
+                }
+
+                setIsSimulating(false);
               }}
               disabled={isSimulating}
               className="w-full bg-[#F05A28] hover:bg-[#E04D1E] text-white font-bold text-[12px] py-3 rounded-xl shadow-[0_2px_10px_rgba(240,90,40,0.2)] transition-all flex items-center justify-center disabled:opacity-70"
