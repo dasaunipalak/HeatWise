@@ -1,14 +1,34 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Thermometer, Leaf, Activity, MapPin, Cloud, Building, Droplets, Map, RotateCcw, Home, Sun } from 'lucide-react';
+import { Thermometer, Leaf, Activity, Cloud, Building, Droplets, Map, RotateCcw, Home } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 import { getDashboard } from '@/services/api';
 import { DashboardData } from '@/types';
 import { getPrediction } from "@/services/api";
-export default function RightSidebar({ isOpen = true }: { isOpen?: boolean }) {
+
+const LULC_CLASSES = [
+  "Water",             // 0
+  "Trees",             // 1
+  "Grass",             // 2
+  "Flooded Vegetation",// 3
+  "Crops",             // 4
+  "Shrub & Scrub",     // 5
+  "Built Area",        // 6
+  "Bare Ground",       // 7
+  "Snow/Ice"           // 8
+];
+
+interface RightSidebarProps {
+  isOpen?: boolean;
+  selectedLocation: { lat: number; lon: number } | null;
+}
+
+export default function RightSidebar({ isOpen = true, selectedLocation }: RightSidebarProps) {
   const [data, setData] = useState<DashboardData | null>(null);
+  const [backendData, setBackendData] = useState<any>(null);
+  const [isLoadingBackend, setIsLoadingBackend] = useState(false);
   const [interventions, setInterventions] = useState({
     treeCover: 0,
     coolRoofs: 0,
@@ -18,9 +38,27 @@ export default function RightSidebar({ isOpen = true }: { isOpen?: boolean }) {
   const [isSimulating, setIsSimulating] = useState(false);
   const [hasSimulated, setHasSimulated] = useState(false);
   const [simulation, setSimulation] = useState<any>(null);
+
+  // Fallback to Lucknow coordinates on initial load if no location is clicked yet
+  const locationToQuery = selectedLocation || { lat: 26.8467, lon: 80.9462 };
+
   useEffect(() => {
     getDashboard().then((res) => setData(res as DashboardData));
   }, []);
+
+  // Fetch real GEE static features and live weather data from backend when location changes
+  useEffect(() => {
+    setIsLoadingBackend(true);
+    getPrediction(locationToQuery.lat, locationToQuery.lon)
+      .then((res) => {
+        setBackendData(res);
+        setIsLoadingBackend(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch backend metrics:", err);
+        setIsLoadingBackend(false);
+      });
+  }, [locationToQuery.lat, locationToQuery.lon]);
 
   if (!data) return <aside className={`bg-white border-l h-full flex items-center justify-center text-sm text-slate-500 transition-all duration-300 ${isOpen ? 'w-[300px]' : 'w-0 border-l-0'}`}>Loading...</aside>;
 
@@ -29,15 +67,18 @@ export default function RightSidebar({ isOpen = true }: { isOpen?: boolean }) {
       <div className="w-[300px] h-full flex flex-col overflow-y-auto">
         {/* Header */}
         <div className="p-3 pb-2">
-          <div className="bg-white rounded-[16px] shadow-[0_2px_10px_rgba(0,0,0,0.06)] border border-slate-100 flex items-center justify-center py-1.5 px-4">
+          <div className="bg-white rounded-[16px] shadow-[0_2px_10px_rgba(0,0,0,0.06)] border border-slate-100 flex flex-col items-center justify-center py-2 px-4 gap-1">
             <h2 className="font-medium text-slate-800 flex items-center gap-2 text-[14px] leading-none">
               <Activity size={15} className="text-[#F05A28]" />
               <span className="pt-[1px]">Analysis</span>
             </h2>
+            <span className="text-[9px] text-slate-400 font-mono">
+              {selectedLocation 
+                ? `${selectedLocation.lat.toFixed(4)}°, ${selectedLocation.lon.toFixed(4)}°` 
+                : "Lucknow (Default)"}
+            </span>
           </div>
         </div>
-
-
 
         {/* Tabs */}
         <Tabs defaultValue="overview" className="w-full">
@@ -53,114 +94,155 @@ export default function RightSidebar({ isOpen = true }: { isOpen?: boolean }) {
           <TabsContent value="overview" className="m-0 outline-none">
             {/* Insight Cards Grid */}
             <div className="p-3 grid grid-cols-2 gap-2.5">
-              {/* Avg Surface Temp */}
+              {/* Zone-average predicted surface temperature */}
               <div className="bg-[#FFF6F6] border border-[#FCE4E4]/60 rounded-[10px] p-2.5 flex flex-col justify-center shadow-none">
                 <div className="text-[10px] text-[#71717A] flex items-center gap-1.5 mb-1.5 font-medium">
-                  <Thermometer size={12} className="text-[#ED4E4E]" /> Avg Surface Temp
+                  <Thermometer size={12} className="text-[#ED4E4E]" /> Zone Surface Temp
                 </div>
-                <div className="text-[14px] font-semibold font-mono text-[#ED4E4E] mb-0.5 leading-none">{data.insights.avgSurfaceTemp.value}</div>
-                <div className="text-[9px] text-[#71717A] font-medium">{data.insights.avgSurfaceTemp.subtext}</div>
+                <div className="text-[14px] font-semibold font-mono text-[#ED4E4E] mb-0.5 leading-none">
+                  {backendData 
+                    ? `${backendData.current_temperature.toFixed(1)}°C` 
+                    : data.insights.avgSurfaceTemp.value}
+                </div>
+                <div className="text-[9px] text-[#71717A] font-medium">
+                  {backendData 
+                    ? "1 km zone ML prediction"
+                    : data.insights.avgSurfaceTemp.subtext}
+                </div>
               </div>
 
-              {/* Avg Air Temp */}
+              {/* Current weather at the selected zone */}
               <div className="bg-[#F0FAFF] border border-[#E0F2FE]/60 rounded-[10px] p-2.5 flex flex-col justify-center shadow-none">
                 <div className="text-[10px] text-[#71717A] flex items-center gap-1.5 mb-1.5 font-medium">
                   <Cloud size={12} className="text-[#0EA5E9]" /> Avg Air Temp
                 </div>
-                <div className="text-[14px] font-semibold font-mono text-[#0EA5E9] mb-0.5 leading-none">{data.insights.avgAirTemp.value}</div>
-                <div className="text-[9px] text-[#71717A] font-medium">{data.insights.avgAirTemp.subtext}</div>
+                <div className="text-[14px] font-semibold font-mono text-[#0EA5E9] mb-0.5 leading-none">
+                  {backendData 
+                    ? `${backendData.weather.AirTemp.toFixed(1)}°C` 
+                    : data.insights.avgAirTemp.value}
+                </div>
+                <div className="text-[9px] text-[#71717A] font-medium">
+                  {backendData 
+                    ? "Current weather estimate"
+                    : data.insights.avgAirTemp.subtext}
+                </div>
               </div>
 
-              {/* Green Cover */}
+              {/* Classified vegetation share within the zone */}
               <div className="bg-[#F3FBF6] border border-[#D8F3E1]/60 rounded-[10px] p-2.5 flex flex-col justify-center shadow-none">
                 <div className="text-[10px] text-[#71717A] flex items-center gap-1.5 mb-1.5 font-medium">
-                  <Leaf size={12} className="text-[#1CC664]" /> Green Cover
+                  <Leaf size={12} className="text-[#1CC664]" /> Vegetation Cover
                 </div>
-                <div className="text-[14px] font-semibold font-mono text-[#1CC664] mb-0.5 leading-none">{data.insights.greenCover.value}</div>
-                <div className="text-[9px] text-[#71717A] font-medium">{data.insights.greenCover.subtext}</div>
+                <div className="text-[14px] font-semibold font-mono text-[#1CC664] mb-0.5 leading-none">
+                  {backendData 
+                    ? `${Math.round(backendData.static_features.Vegetation_Cover * 100)}%`
+                    : data.insights.greenCover.value}
+                </div>
+                <div className="text-[9px] text-[#71717A] font-medium">
+                  {backendData 
+                    ? `NDVI: ${backendData.static_features.NDVI.toFixed(2)}` 
+                    : data.insights.greenCover.subtext}
+                </div>
               </div>
 
-              {/* Built-up Area */}
+              {/* Classified built-up share within the zone */}
               <div className="bg-[#F8F5FF] border border-[#EAE0FE]/60 rounded-[10px] p-2.5 flex flex-col justify-center shadow-none">
                 <div className="text-[10px] text-[#71717A] flex items-center gap-1.5 mb-1.5 font-medium">
-                  <Building size={12} className="text-[#A36AF5]" /> Built-up Area
+                  <Building size={12} className="text-[#A36AF5]" /> Built-up Cover
                 </div>
-                <div className="text-[14px] font-semibold font-mono text-[#A36AF5] mb-0.5 leading-none">{data.insights.builtUpArea.value}</div>
-                <div className="text-[9px] text-[#71717A] font-medium">{data.insights.builtUpArea.subtext}</div>
+                <div className="text-[14px] font-semibold font-mono text-[#A36AF5] mb-0.5 leading-none">
+                  {backendData 
+                    ? `${Math.round(backendData.static_features.BuiltUp_Cover * 100)}%`
+                    : data.insights.builtUpArea.value}
+                </div>
+                <div className="text-[9px] text-[#71717A] font-medium">
+                  {backendData 
+                    ? `NDBI: ${backendData.static_features.NDBI.toFixed(2)}` 
+                    : data.insights.builtUpArea.subtext}
+                </div>
               </div>
 
-              {/* Water Coverage */}
+              {/* Classified water share within the zone */}
               <div className="bg-[#F0F7FF] border border-[#DDECFF]/60 rounded-[10px] p-2.5 flex flex-col justify-center shadow-none">
                 <div className="text-[10px] text-[#71717A] flex items-center gap-1.5 mb-1.5 font-medium">
                   <Droplets size={12} className="text-[#3B82F6]" /> Water Coverage
                 </div>
-                <div className="text-[14px] font-semibold font-mono text-[#3B82F6] mb-0.5 leading-none">{data.insights.waterCoverage.value}</div>
-                <div className="text-[9px] text-[#71717A] font-medium">{data.insights.waterCoverage.subtext}</div>
+                <div className="text-[14px] font-semibold font-mono text-[#3B82F6] mb-0.5 leading-none">
+                  {backendData 
+                    ? `${Math.round(backendData.static_features.Water_Cover * 100)}%`
+                    : data.insights.waterCoverage.value}
+                </div>
+                <div className="text-[9px] text-[#71717A] font-medium">
+                  {backendData 
+                    ? `NDWI: ${backendData.static_features.NDWI.toFixed(2)}` 
+                    : data.insights.waterCoverage.subtext}
+                </div>
               </div>
 
-              {/* Dominant Land Type */}
+              {/* Most common Dynamic World class in the zone */}
               <div className="bg-[#FFFBF0] border border-[#FEF0C7]/60 rounded-[10px] p-2.5 flex flex-col justify-center shadow-none">
                 <div className="text-[10px] text-[#71717A] flex items-center gap-1.5 mb-1.5 font-medium">
-                  <Map size={12} className="text-[#F59E0B]" /> Dominant Land
+                  <Map size={12} className="text-[#F59E0B]" /> Dominant Zone Land
                 </div>
-                <div className="text-[14px] font-semibold font-mono text-[#F59E0B] mb-0.5 leading-none">{data.insights.dominantLandType.value}</div>
-                <div className="text-[9px] text-[#71717A] font-medium">{data.insights.dominantLandType.subtext}</div>
+                <div className="text-[14px] font-semibold font-mono text-[#F59E0B] mb-0.5 leading-none">
+                  {backendData 
+                    ? (LULC_CLASSES[backendData.static_features.LULC_Map] || "Unknown") 
+                    : data.insights.dominantLandType.value}
+                </div>
+                <div className="text-[9px] text-[#71717A] font-medium">
+                  {backendData 
+                    ? "Most common class in 1 km zone"
+                    : data.insights.dominantLandType.subtext}
+                </div>
               </div>
             </div>
-
 
             {/* Recommendations Section */}
             <div className="px-4 pb-4 flex flex-col gap-3.5">
-              <h3 className="text-[12px] font-bold text-slate-800 mt-2">Recommendations</h3>
+  <h3 className="text-[12px] font-bold text-slate-800 mt-2">
+    Recommendations for this area
+  </h3>
 
-              {/* Downtown Core */}
-              <div className="bg-[#FFF6F6] border border-[#FCE4E4] rounded-xl p-4 shadow-[0_1px_2px_rgba(0,0,0,0.01)] flex flex-col gap-3">
-                <div className="text-[11px] font-medium flex items-center gap-1.5">
-                  <div className="text-[#ED4E4E]"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg></div>
-                  Downtown Core
-                </div>
-                <p className="text-[10px] text-slate-600 leading-relaxed font-medium">Deploy emergency cooling stations — 3 hotspot zones exceed 47°C</p>
-                <button className="bg-red-500/10 text-red-600 font-bold text-[9px] px-3 py-1.5 rounded-lg w-fit flex items-center gap-1.5 hover:bg-red-500/20 transition-colors">
-                  Activate protocol ➔
-                </button>
-              </div>
+  {isLoadingBackend ? (
+    <p className="text-[10px] text-slate-500">
+      Analysing local heat drivers…
+    </p>
+  ) : backendData?.recommendations?.length ? (
+    backendData.recommendations.map(
+      (recommendation: {
+        priority: "critical" | "high" | "medium" | "low";
+        title: string;
+        message: string;
+      }, index: number) => {
+        const styles = {
+          critical: "bg-[#FFF6F6] border-[#FCE4E4] text-[#ED4E4E]",
+          high: "bg-[#FFF7F4] border-[#FCE8E1] text-[#F05A28]",
+          medium: "bg-[#F4F8FE] border-[#E1EEFD] text-[#5898F6]",
+          low: "bg-[#F3FBF6] border-[#D8F3E1] text-[#1CC664]",
+        };
 
-              {/* Warehouse District */}
-              <div className="bg-[#FFF7F4] border border-[#FCE8E1] rounded-xl p-4 shadow-[0_1px_2px_rgba(0,0,0,0.01)] flex flex-col gap-3">
-                <div className="text-[11px] font-medium flex items-center gap-1.5">
-                  <div className="text-[#F05A28]"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg></div>
-                  Warehouse District
-                </div>
-                <p className="text-[10px] text-slate-600 leading-relaxed font-medium">Low NDVI (0.12) + high albedo — recommend green roof pilot</p>
-                <button className="bg-orange-500/10 text-orange-600 font-bold text-[9px] px-3 py-1.5 rounded-lg w-fit flex items-center gap-1.5 hover:bg-orange-500/20 transition-colors">
-                  View proposal ➔
-                </button>
-              </div>
-
-              {/* Residential NW */}
-              <div className="bg-[#F4F8FE] border border-[#E1EEFD] rounded-xl p-4 shadow-[0_1px_2px_rgba(0,0,0,0.01)] flex flex-col gap-3">
-                <div className="text-[11px] font-medium flex items-center gap-1.5">
-                  <div className="text-[#5898F6]"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg></div>
-                  Residential NW
-                </div>
-                <p className="text-[10px] text-slate-600 leading-relaxed font-medium">Planting 2,400 shade trees would reduce local temp by ~2.1°C</p>
-                <button className="bg-blue-500/10 text-blue-600 font-bold text-[9px] px-3 py-1.5 rounded-lg w-fit flex items-center gap-1.5 hover:bg-blue-500/20 transition-colors">
-                  Generate report ➔
-                </button>
-              </div>
-
-              {/* Greenway Corridor */}
-              <div className="bg-[#F3FBF6] border border-[#D8F3E1] rounded-xl p-4 shadow-[0_1px_2px_rgba(0,0,0,0.01)] flex flex-col gap-3">
-                <div className="text-[11px] font-medium flex items-center gap-1.5">
-                  <div className="text-[#1CC664]"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" /></svg></div>
-                  Greenway Corridor
-                </div>
-                <p className="text-[10px] text-slate-600 leading-relaxed font-medium">Mitigation efforts since Q1 reduced UHI index by 8.3%</p>
-                <button className="bg-green-500/10 text-green-600 font-bold text-[9px] px-3 py-1.5 rounded-lg w-fit flex items-center gap-1.5 hover:bg-green-500/20 transition-colors">
-                  View analysis ➔
-                </button>
-              </div>
+        return (
+          <div
+            key={index}
+            className={`border rounded-xl p-4 flex flex-col gap-2 ${styles[recommendation.priority]}`}
+          >
+            <div className="text-[11px] font-semibold">
+              {recommendation.title}
             </div>
+
+            <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
+              {recommendation.message}
+            </p>
+          </div>
+        );
+      }
+    )
+  ) : (
+    <p className="text-[10px] text-slate-500">
+      Select a location to view its heat analysis.
+    </p>
+  )}
+</div>
           </TabsContent>
 
           <TabsContent value="simulate" className="m-0 outline-none p-4 flex flex-col gap-4 pb-24 h-full overflow-y-auto overflow-x-hidden">
@@ -217,8 +299,8 @@ export default function RightSidebar({ isOpen = true }: { isOpen?: boolean }) {
 
                 try {
                   const result = await getPrediction(
-                    26.8467,
-                    80.9462,
+                    locationToQuery.lat,
+                    locationToQuery.lon,
                     interventions.treeCover / 100,
                     interventions.reflectiveSurfaces / 100,
                     1 - interventions.coolRoofs / 200

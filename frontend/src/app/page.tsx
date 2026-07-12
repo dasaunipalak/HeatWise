@@ -103,7 +103,8 @@ export default function Dashboard() {
         setTileError={setTileError}
       />
 
-      <RightSidebar isOpen={rightOpen} />
+      {/* <RightSidebar isOpen={rightOpen} /> */}
+      <RightSidebar isOpen={rightOpen} selectedLocation={selectedLocation} />
     </div>
   );
 }

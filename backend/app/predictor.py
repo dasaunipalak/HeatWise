@@ -1,6 +1,6 @@
 import pandas as pd
 
-from app.diagnostics import get_heat_drivers
+from app.diagnostics import get_heat_drivers, get_recommendations
 from app.model_loader import model
 from app.raster_utils import get_static_features
 from app.weather import get_live_weather
@@ -17,7 +17,7 @@ def predict_temperature(
     # Get static features from raster
     static_features = get_static_features(latitude, longitude)
     original_features = static_features.copy()
-    
+
     # print("Original:", static_features)
     drivers = get_heat_drivers(static_features)
 
@@ -96,9 +96,16 @@ def predict_temperature(
     current_temperature = float(original_prediction[0])
     predicted_temperature = float(prediction[0])
     temperature_change = predicted_temperature - current_temperature
+    recommendations = get_recommendations(
+    original_features,
+    current_temperature,
+    drivers
+    )
     # print("Predicted temperature:", float(prediction[0]))
 
+
     return {
+    "recommendations": recommendations,
     "current_temperature": current_temperature,
     "predicted_temperature": predicted_temperature,
     "temperature_change": temperature_change,
