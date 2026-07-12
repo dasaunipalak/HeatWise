@@ -33,7 +33,7 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if (!activeLayer || !mapBounds) {
+    if (!activeLayer)  {
       setTileUrl(null);
       setPreviousLayer(null);
       return;
@@ -48,11 +48,7 @@ export default function Dashboard() {
 
         console.log("Current map bounds:", mapBounds);
 
-        const { north, south, east, west } = mapBounds;
-
-        const response = await fetch(
-          `/api/v1/maps/${activeLayer}?north=${north}&south=${south}&east=${east}&west=${west}`
-        );
+        const response = await fetch(`/api/v1/maps/${activeLayer}`);
 
         if (!response.ok) {
           throw new Error(`Failed to load layer: ${response.statusText || response.status}`);
@@ -84,7 +80,7 @@ export default function Dashboard() {
     return () => {
       isCurrent = false;
     };
-  }, [activeLayer, mapBounds]);
+  }, [activeLayer]);
 
   return (
     <div className="relative flex h-[100dvh] w-screen overflow-hidden">

@@ -32,12 +32,14 @@ const BASE_URL = "http://127.0.0.1:8000";
 export const getPrediction = async (
   latitude: number,
   longitude: number,
-  ndvi_change = 0,
-  ndbi_change = 0,
-  radiation_factor = 1
+  ndviChange = 0,
+  ndbiChange = 0,
+  radiationFactor = 1,
+  signal?: AbortSignal
 ) => {
   const response = await fetch(
-    `${BASE_URL}/predict?latitude=${latitude}&longitude=${longitude}&ndvi_change=${ndvi_change}&ndbi_change=${ndbi_change}&radiation_factor=${radiation_factor}`
+    `${BASE_URL}/predict?latitude=${latitude}&longitude=${longitude}&ndvi_change=${ndviChange}&ndbi_change=${ndbiChange}&radiation_factor=${radiationFactor}`,
+    { signal }
   );
 
   if (!response.ok) {

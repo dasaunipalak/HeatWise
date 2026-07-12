@@ -48,18 +48,37 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
   }, []);
 
   // Fetch real GEE static features and live weather data from backend when location changes
-  useEffect(() => {
-    setIsLoadingBackend(true);
-    getPrediction(locationToQuery.lat, locationToQuery.lon)
-      .then((res) => {
-        setBackendData(res);
+useEffect(() => {
+  const controller = new AbortController();
+
+  setIsLoadingBackend(true);
+
+  getPrediction(
+    locationToQuery.lat,
+    locationToQuery.lon,
+    0,
+    0,
+    1,
+    controller.signal
+  )
+    .then((result) => {
+      setBackendData(result);
+    })
+    .catch((error) => {
+      if (error.name !== "AbortError") {
+        console.error("Failed to fetch backend metrics:", error);
+      }
+    })
+    .finally(() => {
+      if (!controller.signal.aborted) {
         setIsLoadingBackend(false);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch backend metrics:", err);
-        setIsLoadingBackend(false);
-      });
-  }, [locationToQuery.lat, locationToQuery.lon]);
+      }
+    });
+
+  return () => {
+    controller.abort();
+  };
+}, [locationToQuery.lat, locationToQuery.lon]);
 
   if (!data) return <aside className={`fixed inset-y-0 right-0 md:static bg-white border-l h-full flex items-center justify-center text-sm text-slate-500 transition-all duration-300 z-40 ${isOpen ? 'w-[300px]' : 'w-0 border-l-0'}`}>Loading...</aside>;
 
@@ -168,7 +187,7 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
                 </div>
                 <div className="text-[9px] text-[#71717A] font-medium">
                   {backendData 
-                    ? `NDBI: ${backendData.static_features.NDBI.toFixed(2)}` 
+                    ? "Dynamic World confident built-up share" 
                     : data.insights.builtUpArea.subtext}
                 </div>
               </div>
