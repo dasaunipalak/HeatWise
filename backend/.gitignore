@@ -5,7 +5,9 @@ __pycache__/
 .env
 
 # Data
-data/
+# Keep other data files private, but commit the deployed model.
+data/*
+!data/india_heat_model.pkl
 
 # macOS
 .DS_Store
