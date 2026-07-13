@@ -1,15 +1,4 @@
-import os
-from dotenv import load_dotenv
 import ee
-
-load_dotenv() 
-PROJECT_ID = os.getenv('GEE_PROJECT_ID')
-
-try:
-    ee.Initialize(project=PROJECT_ID)
-except Exception:
-    ee.Authenticate()
-    ee.Initialize(project=PROJECT_ID)
 
 from datetime import datetime, timedelta
 
