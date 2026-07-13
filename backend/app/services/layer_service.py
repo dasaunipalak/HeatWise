@@ -105,15 +105,13 @@ def get_gee_tile_url(layer_type: str, date_key: str):
 
         if layer_type == "surface_temp":
             image = (
-                ee.ImageCollection("MODIS/061/MOD11A1")
-                .filterBounds(geometry)
-                .filterDate(modis_start, today)
-                .select("LST_Day_1km")
-                .median()
-                .multiply(0.02)
-                .subtract(273.15)
-                .clip(geometry)
-            )
+            ee.ImageCollection("MODIS/061/MOD11A1")
+            .filterDate(modis_start, today)
+            .select("LST_Day_1km")
+            .median()
+            .multiply(0.02)
+            .subtract(273.15)
+        )
 
         elif layer_type == "ndvi_veg":
             image = (
