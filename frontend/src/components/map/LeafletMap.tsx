@@ -1,6 +1,6 @@
 'use client';
 
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, useMap, Circle } from "react-leaflet";
 import { useEffect } from "react";
 
 interface LeafletMapProps {
@@ -120,6 +120,14 @@ export default function LeafletMap({
                     url={tileUrl}
                     attribution="Google Earth Engine"
                     opacity={0.30}
+                />
+            )}
+            
+            {selectedLocation && (
+                <Circle 
+                    center={[selectedLocation.lat, selectedLocation.lon]}
+                    radius={1000} // 1 km radius
+                    pathOptions={{ color: '#f97316', weight: 2, fillColor: '#f97316', fillOpacity: 0.1 }}
                 />
             )}
         </MapContainer>

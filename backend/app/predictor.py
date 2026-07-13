@@ -11,6 +11,7 @@ def predict_temperature(
     longitude,
     ndvi_change=0.0,
     ndbi_change=0.0,
+    ndwi_change=0.0,
     radiation_factor=1.0
 ):
 
@@ -21,17 +22,17 @@ def predict_temperature(
     # print("Original:", static_features)
     drivers = get_heat_drivers(static_features)
 
+    # TODO: Inspect actual training dataset to determine realistic min/max observed values 
+    # for NDVI, NDBI, and NDWI. Clip modified features only within those observed ranges.
+    
     # Apply vegetation intervention
-    static_features["NDVI"] = min(
-        max(static_features["NDVI"] + ndvi_change, 0.0),
-        1.0
-    )
+    static_features["NDVI"] += ndvi_change
 
     # Apply built-up density intervention
-    static_features["NDBI"] = min(
-        max(static_features["NDBI"] + ndbi_change, -1.0),
-        1.0
-    )
+    static_features["NDBI"] += ndbi_change
+
+    # Apply water features intervention
+    static_features["NDWI"] += ndwi_change
 
     # Apply cool roofs / shading intervention
     static_features["Avg_Radiation"] *= radiation_factor
@@ -110,6 +111,7 @@ def predict_temperature(
     "predicted_temperature": predicted_temperature,
     "temperature_change": temperature_change,
     "weather": weather,
+    "original_features": original_features,
     "static_features": static_features,
     "drivers": drivers
 }

@@ -32,10 +32,10 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
   const [backendData, setBackendData] = useState<any>(null);
   const [isLoadingBackend, setIsLoadingBackend] = useState(false);
   const [interventions, setInterventions] = useState({
-    treeCover: 0,
-    coolRoofs: 0,
+    urbanGreening: 0,
+    developmentIntensity: 0,
     waterFeatures: 0,
-    reflectiveSurfaces: 0
+    coolRoofs: 0
   });
   const [isSimulating, setIsSimulating] = useState(false);
   const [hasSimulated, setHasSimulated] = useState(false);
@@ -58,6 +58,7 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
     getPrediction(
       locationToQuery.lat,
       locationToQuery.lon,
+      0,
       0,
       0,
       1,
@@ -278,14 +279,41 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
           </TabsContent>
 
           <TabsContent value="simulate" className="m-0 outline-none p-4 flex flex-col gap-4 pb-24 h-full overflow-y-auto overflow-x-hidden">
+            {/* Section 0: Current Site Analysis */}
+            {backendData && !hasSimulated && (
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col gap-3 relative">
+                <h3 className="text-[12px] font-bold text-slate-800">Current Site Analysis</h3>
+                
+                <div className="flex flex-col gap-2.5">
+                  <div className="flex justify-between items-center text-[11px]">
+                    <span className="text-slate-500 font-medium">Baseline Predicted LST</span>
+                    <span className="text-slate-800 font-bold font-mono">{backendData.current_temperature.toFixed(2)}°C</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[11px]">
+                    <span className="text-slate-500 font-medium">Vegetation Cover</span>
+                    <span className="text-green-600 font-bold font-mono">{Math.round(backendData.static_features.Vegetation_Cover * 100)}%</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[11px]">
+                    <span className="text-slate-500 font-medium">Built-up Cover</span>
+                    <span className="text-purple-600 font-bold font-mono">{Math.round(backendData.static_features.BuiltUp_Cover * 100)}%</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[11px]">
+                    <span className="text-slate-500 font-medium">Water Cover</span>
+                    <span className="text-blue-600 font-bold font-mono">{Math.round(backendData.static_features.Water_Cover * 100)}%</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Section 1: Design Interventions */}
             <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col gap-4 relative">
               <div className="flex items-center justify-between mb-1">
                 <h3 className="text-[12px] font-bold text-slate-800">Design Interventions</h3>
                 <button
                   onClick={() => {
-                    setInterventions({ treeCover: 0, coolRoofs: 0, waterFeatures: 0, reflectiveSurfaces: 0 });
+                    setInterventions({ urbanGreening: 0, developmentIntensity: 0, waterFeatures: 0, coolRoofs: 0 });
                     setHasSimulated(false);
+                    setSimulation(null);
                   }}
                   className="text-[10px] text-slate-400 hover:text-slate-600 flex items-center gap-1 transition-colors bg-slate-50 hover:bg-slate-100 px-2 py-1 rounded-md"
                 >
@@ -294,32 +322,55 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
               </div>
 
               {/* Sliders */}
-              <div className="flex flex-col gap-3.5">
+              <div className="flex flex-col gap-4">
                 {[
-                  { id: 'treeCover', label: 'Tree Cover', icon: Leaf, color: 'text-green-500', max: 100 },
-                  { id: 'coolRoofs', label: 'Cool Roofs', icon: Home, color: 'text-blue-500', max: 100 },
-                  { id: 'reflectiveSurfaces', label: 'Built-up Density', icon: Building, color: 'text-purple-500', max: 100 },
-                ].map((item) => (
-                  <div key={item.id} className="flex flex-col gap-1.5">
-                    <div className="flex items-center justify-between text-[11px] font-medium text-slate-700">
-                      <div className="flex items-center gap-1.5">
-                        <item.icon size={12} className={item.color} /> {item.label}
+                  { id: 'urbanGreening', label: 'Urban Greening', icon: Leaf, color: 'text-green-500', min: -30, max: 30, unit: '%', tooltip: 'Adjusts vegetation (NDVI) within the simulated neighbourhood.' },
+                  { id: 'developmentIntensity', label: 'Development Intensity', icon: Building, color: 'text-purple-500', min: -20, max: 20, unit: '%', tooltip: 'Changes built-up density (NDBI).' },
+                  { id: 'waterFeatures', label: 'Water Features', icon: Droplets, color: 'text-blue-500', min: -15, max: 15, unit: '%', tooltip: 'Changes water presence (NDWI).' },
+                  { id: 'coolRoofs', label: 'Cool Roof Adoption', icon: Home, color: 'text-sky-500', min: 0, max: 100, unit: '%', tooltip: 'Reduces absorbed solar radiation.' },
+                ].map((item) => {
+                  const val = interventions[item.id as keyof typeof interventions];
+                  const percentage = ((val - item.min) / (item.max - item.min)) * 100;
+                  
+                  let bgStyle = '';
+                  if (item.min >= 0) {
+                    bgStyle = `linear-gradient(to right, #f97316 ${percentage}%, #e2e8f0 ${percentage}%)`;
+                  } else {
+                    const zeroPercentage = ((0 - item.min) / (item.max - item.min)) * 100;
+                    if (val > 0) {
+                      bgStyle = `linear-gradient(to right, #e2e8f0 ${zeroPercentage}%, #f97316 ${zeroPercentage}%, #f97316 ${percentage}%, #e2e8f0 ${percentage}%)`;
+                    } else if (val < 0) {
+                      bgStyle = `linear-gradient(to right, #e2e8f0 ${percentage}%, #f97316 ${percentage}%, #f97316 ${zeroPercentage}%, #e2e8f0 ${zeroPercentage}%)`;
+                    } else {
+                      bgStyle = `#e2e8f0`;
+                    }
+                  }
+
+                  return (
+                    <div key={item.id} className="flex flex-col gap-1.5" title={item.tooltip}>
+                      <div className="flex items-center justify-between text-[11px] font-medium text-slate-700">
+                        <div className="flex items-center gap-1.5">
+                          <item.icon size={12} className={item.color} /> 
+                          <span className="border-b border-dashed border-slate-300 cursor-help">{item.label}</span>
+                        </div>
+                        <span className="text-slate-500 font-mono text-[10px]">
+                          {val > 0 && item.min < 0 ? '+' : ''}{val}{item.unit}
+                        </span>
                       </div>
-                      <span className="text-slate-500 font-mono text-[10px]">{interventions[item.id as keyof typeof interventions]}%</span>
+                      <input
+                        type="range"
+                        min={item.min} max={item.max}
+                        value={val}
+                        onChange={(e) => {
+                          setInterventions({ ...interventions, [item.id]: parseInt(e.target.value) });
+                          setHasSimulated(false);
+                        }}
+                        style={{ background: bgStyle }}
+                        className="w-full h-1.5 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-orange-500 [&::-webkit-slider-thumb]:rounded-sm [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-1.5 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-orange-500 [&::-moz-range-thumb]:rounded-sm [&::-moz-range-thumb]:border-0"
+                      />
                     </div>
-                    <input
-                      type="range"
-                      min="0" max={item.max}
-                      value={interventions[item.id as keyof typeof interventions]}
-                      onChange={(e) => {
-                        setInterventions({ ...interventions, [item.id]: parseInt(e.target.value) });
-                        setHasSimulated(false); // Reset simulation state on change
-                      }}
-                      style={{ background: `linear-gradient(to right, #f97316 ${interventions[item.id as keyof typeof interventions]}%, #e2e8f0 ${interventions[item.id as keyof typeof interventions]}%)` }}
-                      className="w-full h-1.5 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-orange-500 [&::-webkit-slider-thumb]:rounded-sm [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-1.5 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-orange-500 [&::-moz-range-thumb]:rounded-sm [&::-moz-range-thumb]:border-0"
-                    />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -329,12 +380,18 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
                 setIsSimulating(true);
 
                 try {
+                  const ndviChange = (interventions.urbanGreening / 100) * 0.30;
+                  const ndbiChange = (interventions.developmentIntensity / 100) * 0.20;
+                  const ndwiChange = (interventions.waterFeatures / 100) * 0.15;
+                  const radiationFactor = 1.0 - (interventions.coolRoofs / 100) * 0.20;
+
                   const result = await getPrediction(
                     locationToQuery.lat,
                     locationToQuery.lon,
-                    interventions.treeCover / 100,
-                    interventions.reflectiveSurfaces / 100,
-                    1 - interventions.coolRoofs / 200
+                    ndviChange,
+                    ndbiChange,
+                    ndwiChange,
+                    radiationFactor
                   );
 
                   console.log(result);
@@ -365,6 +422,16 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
               </div>
             </button>
 
+            {/* Empty State */}
+            {!hasSimulated && backendData && (
+              <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 text-center mt-2">
+                <p className="text-[11px] text-slate-500 font-medium">
+                  No intervention has been simulated yet.<br/>
+                  Adjust one or more interventions and click Update Simulation.
+                </p>
+              </div>
+            )}
+
             {/* Success Message */}
             <div className={`flex items-center justify-center gap-1.5 text-[10px] font-bold text-[#1CC664] transition-all duration-500 overflow-hidden ${hasSimulated && !isSimulating ? 'opacity-100 max-h-10 mt-1 mb-1' : 'opacity-0 max-h-0 m-0'}`}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
@@ -379,22 +446,22 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
 
                 <div className="flex flex-col items-center justify-center text-center z-10 w-full mb-3 mt-1">
                   <span className="text-[26px] font-black text-[#1CC664] font-mono tracking-tighter leading-none mb-1.5">
-                    {simulation ? `-${Math.abs(simulation.temperature_change).toFixed(2)}°C` : "--"}
+                    {simulation ? `${simulation.temperature_change > 0 ? '+' : ''}${simulation.temperature_change.toFixed(2)}°C` : "--"}
                   </span>
                   <span className="text-[10px] font-bold text-slate-700 uppercase tracking-widest mt-0.5 mb-0.5">
-                    Cooling Achieved
+                    Net Temperature Change
                   </span>
                   <span className="text-[8px] text-slate-500 font-medium max-w-[80%]">
-                    Estimated reduction in average surface temp
+                    Estimated shift in average surface temp
                   </span>
                 </div>
 
                 <div className="w-full h-[1px] bg-slate-100 mb-4 z-10"></div>
 
-                <div className="w-full flex items-center justify-between z-10 px-1">
+                <div className="w-full flex items-center justify-between z-10 px-1 mb-4">
                   <div className="flex flex-col items-center">
-                    <span className="text-[9px] text-slate-400 font-semibold mb-1 flex items-center gap-1 uppercase tracking-wider">
-                      <Thermometer size={10} className="text-slate-300"/> Current
+                    <span className="text-[9px] text-slate-400 font-semibold mb-1 flex items-center gap-1 uppercase tracking-wider text-center leading-tight max-w-[60px]">
+                      Baseline Predicted LST
                     </span>
                     <span className="text-[13px] font-bold text-slate-700 font-mono">
                       {simulation ? `${simulation.current_temperature.toFixed(2)}°C` : "--"}
@@ -406,127 +473,96 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
                   </div>
 
                   <div className="flex flex-col items-center">
-                    <span className="text-[9px] text-orange-500/80 font-semibold mb-1 flex items-center gap-1 uppercase tracking-wider">
-                      <Thermometer size={10} className="text-orange-300"/> Simulated
+                    <span className="text-[9px] text-orange-500/80 font-semibold mb-1 flex items-center gap-1 uppercase tracking-wider text-center leading-tight max-w-[60px]">
+                      Projected LST After
                     </span>
                     <span className="text-[13px] font-bold text-orange-600 font-mono">
                       {simulation ? `${simulation.predicted_temperature.toFixed(2)}°C` : "--"}
                     </span>
                   </div>
                 </div>
-              </div>
 
-              {/* Intervention Impact */}
-              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-[0_2px_10px_rgba(0,0,0,0.04)] flex flex-col gap-0">
-                <h3 className="text-[12px] font-bold text-slate-800 mb-3">
-                  Intervention Impact
-                </h3>
-
-                <div className="flex flex-col">
-                  {(() => {
-                    const wTree = interventions.treeCover * 0.014;
-                    const wRoof = interventions.coolRoofs * 0.012;
-                    const wSurface = interventions.reflectiveSurfaces * 0.007;
-                    const totalW = wTree + wRoof + wSurface;
-                    const totalReduction = simulation ? Math.abs(simulation.temperature_change) : 0;
-
-                    const impacts = [
-                      {
-                        id: 'treeCover',
-                        label: 'Tree Cover',
-                        icon: Leaf,
-                        iconColor: 'text-green-500',
-                        desc: 'Provides shading and evapotranspiration.',
-                        value: totalW > 0 ? totalReduction * (wTree / totalW) : 0
-                      },
-                      {
-                        id: 'coolRoofs',
-                        label: 'Cool Roofs',
-                        icon: Home,
-                        iconColor: 'text-blue-500',
-                        desc: 'Reduces rooftop heat absorption.',
-                        value: totalW > 0 ? totalReduction * (wRoof / totalW) : 0
-                      },
-                      {
-                        id: 'reflectiveSurfaces',
-                        label: 'Built-up Density',
-                        icon: Building,
-                        iconColor: 'text-purple-500',
-                        desc: 'Modifies heat retention of urban materials.',
-                        value: totalW > 0 ? totalReduction * (wSurface / totalW) : 0
-                      }
-                    ];
-
-                    return impacts.map((item, index) => {
-                      if (interventions[item.id as keyof typeof interventions] === 0) return null;
-                      return (
-                        <div key={item.id} className="flex flex-col py-2.5 border-b border-slate-100 last:border-0 first:pt-0 last:pb-0">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-700">
-                              <item.icon size={13} className={item.iconColor} /> {item.label}
-                            </div>
-                            <div className="text-[11px] font-mono font-bold text-[#1CC664] flex items-center gap-1">
-                              ↓ {item.value.toFixed(1)}°C
-                            </div>
-                          </div>
-                          <div className="text-[9px] text-slate-500 mt-1 pl-5">
-                            {item.desc}
-                          </div>
-                        </div>
-                      );
-                    });
-                  })()}
-
-                  {interventions.treeCover === 0 && interventions.coolRoofs === 0 && interventions.reflectiveSurfaces === 0 && (
-                    <div className="text-[10px] text-slate-400 italic text-center py-2">
-                      No interventions applied.
-                    </div>
-                  )}
+                <div className="w-full h-[1px] bg-slate-100 mb-3 z-10"></div>
+                
+                <div className="flex flex-col gap-1.5 w-full text-left">
+                  <div className="text-[9px] text-slate-500 flex justify-between">
+                    <span className="font-semibold text-slate-600">Simulation Area</span>
+                    <span>1 km radius neighbourhood</span>
+                  </div>
+                  <div className="text-[9px] text-slate-500 flex justify-between">
+                    <span className="font-semibold text-slate-600">Prediction Method</span>
+                    <span>Random Forest Regression</span>
+                  </div>
+                  <div className="text-[8px] text-slate-400 italic text-center w-full mt-1">
+                    This prediction represents average land surface temperature for the selected neighbourhood.
+                  </div>
                 </div>
               </div>
+
+              {/* Before / After Feature Comparison */}
+              {simulation && simulation.original_features && (
+                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col gap-3">
+                  <h3 className="text-[12px] font-bold text-slate-800">Feature Comparison</h3>
+                  <div className="w-full">
+                    <table className="w-full text-[10px] text-left">
+                      <thead>
+                        <tr className="border-b border-slate-100 text-slate-400">
+                          <th className="font-semibold py-1">Feature</th>
+                          <th className="font-semibold py-1 text-right pr-4">Current</th>
+                          <th className="font-semibold py-1 text-right">After Simulation</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b border-slate-50">
+                          <td className="py-1.5 text-slate-600 font-medium">NDVI</td>
+                          <td className="py-1.5 font-mono text-slate-500 text-right pr-4">{simulation.original_features.NDVI.toFixed(3)}</td>
+                          <td className="py-1.5 font-mono text-slate-800 font-bold text-right">{simulation.static_features.NDVI.toFixed(3)}</td>
+                        </tr>
+                        <tr className="border-b border-slate-50">
+                          <td className="py-1.5 text-slate-600 font-medium">NDBI</td>
+                          <td className="py-1.5 font-mono text-slate-500 text-right pr-4">{simulation.original_features.NDBI.toFixed(3)}</td>
+                          <td className="py-1.5 font-mono text-slate-800 font-bold text-right">{simulation.static_features.NDBI.toFixed(3)}</td>
+                        </tr>
+                        <tr className="border-b border-slate-50">
+                          <td className="py-1.5 text-slate-600 font-medium">NDWI</td>
+                          <td className="py-1.5 font-mono text-slate-500 text-right pr-4">{simulation.original_features.NDWI.toFixed(3)}</td>
+                          <td className="py-1.5 font-mono text-slate-800 font-bold text-right">{simulation.static_features.NDWI.toFixed(3)}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
               {/* Simulation Summary */}
-              <div className={`bg-white border border-slate-200 rounded-xl p-4 flex flex-col gap-2.5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all duration-700 delay-300 ${hasSimulated && !isSimulating ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-                <div className="text-[11px] text-slate-800 font-bold flex items-center gap-1.5 uppercase tracking-wider">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F05A28" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m11.5 2 2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5 2.5-6Z" /></svg>
-                  Simulation Summary
+              {simulation && (
+                <div className={`bg-white border border-slate-200 rounded-xl p-4 flex flex-col gap-2.5 shadow-sm`}>
+                  <div className="text-[11px] text-slate-800 font-bold flex items-center gap-1.5 uppercase tracking-wider mb-1">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F05A28" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m11.5 2 2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5 2.5-6Z" /></svg>
+                    Simulation Summary
+                  </div>
+                  <div className="text-[10.5px] text-slate-600 leading-relaxed font-medium">
+                    <ul className="list-disc pl-4 mb-3 space-y-1">
+                      {interventions.urbanGreening !== 0 ? (
+                        <li>Urban greening was {interventions.urbanGreening > 0 ? 'increased' : 'reduced'}.</li>
+                      ) : null}
+                      {interventions.developmentIntensity !== 0 ? (
+                        <li>Development intensity was {interventions.developmentIntensity > 0 ? 'increased' : 'reduced'}.</li>
+                      ) : null}
+                      {interventions.waterFeatures !== 0 ? (
+                        <li>Water features were {interventions.waterFeatures > 0 ? 'expanded' : 'reduced'}.</li>
+                      ) : null}
+                      {interventions.coolRoofs !== 0 ? (
+                        <li>Cool roof adoption was increased.</li>
+                      ) : null}
+                      {Object.values(interventions).every(v => v === 0) && <li>No interventions applied.</li>}
+                    </ul>
+                    <p>
+                      Combined interventions resulted in an estimated <span className="font-bold text-[#F05A28]">{Math.abs(simulation.temperature_change).toFixed(2)}°C {simulation.temperature_change > 0 ? 'increase' : 'reduction'}</span> in neighbourhood average land surface temperature.
+                    </p>
+                  </div>
                 </div>
-                <p className="text-[10.5px] text-slate-600 leading-relaxed font-medium">
-                  {(() => {
-                    if (!simulation || Math.abs(simulation.temperature_change) < 0.01) {
-                      return "No significant cooling achieved. Adjust the intervention sliders to simulate temperature reductions.";
-                    }
-                    
-                    const wTree = interventions.treeCover * 0.014;
-                    const wRoof = interventions.coolRoofs * 0.012;
-                    const wSurface = interventions.reflectiveSurfaces * 0.007;
-                    const totalReduction = Math.abs(simulation.temperature_change);
-
-                    const items = [
-                      { name: 'tree cover', weight: wTree },
-                      { name: 'cool roofs', weight: wRoof },
-                      { name: 'built-up density optimization', weight: wSurface },
-                    ].filter(i => i.weight > 0).sort((a, b) => b.weight - a.weight);
-
-                    if (items.length === 0) return "Run a simulation to evaluate the impact of your interventions.";
-
-                    let appliedStr = items.map(i => i.name).join(" and ");
-                    if (items.length === 3) {
-                      appliedStr = `${items[0].name}, ${items[1].name}, and ${items[2].name}`;
-                    }
-                    
-                    const topStr = items.length > 1 
-                      ? `${items[0].name.charAt(0).toUpperCase() + items[0].name.slice(1)} contributed the largest cooling effect, followed by ${items[1].name}.` 
-                      : `Increasing ${items[0].name} was the primary driver of this temperature drop.`;
-
-                    return (
-                      <>
-                        Increasing {appliedStr} is estimated to reduce the average surface temperature by <span className="font-bold text-[#F05A28]">{totalReduction.toFixed(1)}°C</span>. {topStr} Together, these interventions reduce heat absorption and improve natural cooling across the selected area.
-                      </>
-                    );
-                  })()}
-                </p>
-              </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>

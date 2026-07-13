@@ -44,14 +44,16 @@ def predict(
     longitude: float,
     ndvi_change: float = 0.0,
     ndbi_change: float = 0.0,
+    ndwi_change: float = 0.0,
     radiation_factor: float = 1.0
 ):
-    print(ndvi_change, ndbi_change, radiation_factor)
+    print(ndvi_change, ndbi_change, ndwi_change, radiation_factor)
     result = predict_temperature(
         latitude,
         longitude,
         ndvi_change,
         ndbi_change,
+        ndwi_change,
         radiation_factor
     )
 

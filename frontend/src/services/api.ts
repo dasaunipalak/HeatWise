@@ -34,11 +34,12 @@ export const getPrediction = async (
   longitude: number,
   ndviChange = 0,
   ndbiChange = 0,
+  ndwiChange = 0,
   radiationFactor = 1,
   signal?: AbortSignal
 ) => {
   const response = await fetch(
-    `${BASE_URL}/predict?latitude=${latitude}&longitude=${longitude}&ndvi_change=${ndviChange}&ndbi_change=${ndbiChange}&radiation_factor=${radiationFactor}`,
+    `${BASE_URL}/predict?latitude=${latitude}&longitude=${longitude}&ndvi_change=${ndviChange}&ndbi_change=${ndbiChange}&ndwi_change=${ndwiChange}&radiation_factor=${radiationFactor}`,
     { signal }
   );
 
