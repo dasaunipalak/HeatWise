@@ -1,223 +1,219 @@
-# 🔥 HeatWise
+# 🚀 HeatWise
 
-HeatWise is an AI-powered urban heat analysis platform that combines satellite imagery, Google Earth Engine, real-time weather data, and machine learning to visualize localized heat patterns and simulate the impact of urban planning interventions.
-
-Designed for planners, researchers, and citizens, HeatWise enables users to explore heat distribution, analyze environmental factors, and evaluate mitigation strategies such as increasing green cover, implementing cool roofs, or modifying urban density.
+> AI-powered Urban Heat Intelligence Platform for Visualizing, Predicting, and Simulating Heat Mitigation Strategies.
 
 ---
 
-## 🚀 Project Resources
+## 📌 Problem & Domain
 
-| Resource | Link |
-|----------|------|
-| 🌐 **Live Website** | https://heat-wise-live.vercel.app/|
-| 🎥 **Demo Video** | [demo video](https://www.youtube.com/watch?v=JuyiG5ePe34)|
-| 📊 **Project Presentation** | [presentation](https://docs.google.com/presentation/d/1j20lwomEpo0uILYrzzvMT1cyHY-wepGV/edit?slide=id.p6#slide=id.p6)|
+Rising temperatures, rapid urban development, and shrinking green spaces have made localized heat a growing challenge for cities. However, understanding how land cover, vegetation, built-up areas, and weather conditions contribute to heat requires specialized geospatial tools that are often inaccessible to planners, researchers, and communities.
 
----
+HeatWise addresses this challenge by combining satellite imagery, real-time weather data, machine learning, and geospatial analytics into an interactive platform. Users can visualize heat distribution, explore environmental factors, and simulate mitigation strategies such as increasing green cover or adopting cool roofs to support data-driven urban planning and climate-resilient decision-making.
 
-## 👥 Team Members
+**Themes Selected:**
 
-- **Ananya** – **UI/UX Design, Frontend Development & Backend Integration**  
-  Designed the user interface, developed the dashboard and interactive map interface, integrated frontend components with backend services, and implemented geospatial layer visualizations.
-
-- **Dhruvika Rawat** – **Backend Development, APIs, Google Earth Engine & Simulation Engine**  
-  Developed backend services and APIs, integrated Google Earth Engine, and implemented the simulation engine for urban heat mitigation scenarios.
-
-- **Manasvi Sharma** – **Machine Learning, Backend, Geospatial Processing & Deployment**  
-  Built the machine learning pipeline, handled geospatial data preprocessing, contributed to backend development, and managed model and application deployment.
-
-- **Palak Dasauni** – **Interactive Mapping, Layer Integration & Testing**  
-  Implemented interactive map functionality, integrated geospatial data layers into the frontend, and conducted end-to-end testing and system integration.
+- ✅ Climate & Sustainability Systems
+- ✅ Infrastructure, Mobility & Smart Systems
+- ✅ Public Systems, Governance & Civic Tech
 
 ---
 
-## ✨ Features
+## 🎯 Objective
 
-* 🗺️ **Interactive Heat Maps** – Explore land surface temperature with smooth pan-and-zoom visualization that adapts to different map scales.
-* 🤖 **AI-Based Temperature Prediction** – Uses an XGBoost model to estimate localized land surface temperatures from environmental features.
-* 🌳 **Heat Mitigation Simulator** – Experiment with urban greening, cool roofs, water bodies, and development intensity to observe predicted temperature changes.
-* 🌦️ **Live Weather Integration** – Incorporates real-time meteorological data into the prediction pipeline.
-* 🌍 **Google Earth Engine Powered** – Retrieves and processes satellite imagery for geospatial analysis.
-* ⚡ **FastAPI Backend** – Modular backend architecture with efficient APIs and scalable service integration.
+HeatWise empowers urban planners, researchers, policymakers, and communities to understand and mitigate urban heat.
 
----
+### Target Users
 
-## 🛠️ Technology Stack
+- Urban Planners
+- Municipal Corporations
+- Environmental Researchers
+- Smart City Authorities
+- Students & Citizens
 
-| Area                 | Technology                            |
-| -------------------- | ------------------------------------- |
-| **Frontend**         | Next.js, React, Tailwind CSS, Leaflet |
-| **Backend**          | FastAPI, Python 3.11+, Uvicorn        |
-| **Machine Learning** | XGBoost, Joblib                       |
-| **Geospatial**       | Google Earth Engine, Rasterio         |
-| **Data Processing**  | Pandas, NumPy                         |
+### Pain Point
 
----
+Current urban heat analysis often requires multiple GIS tools, technical expertise, and fragmented datasets, making it difficult to evaluate heat mitigation strategies efficiently.
 
-## 🏗️ Project Architecture
+### Our Solution
 
-```text
-Satellite Imagery + Live Weather
-                │
-                ▼
-      Google Earth Engine
-                │
-                ▼
-     Feature Extraction Pipeline
-                │
-                ▼
-      XGBoost Prediction Model
-                │
-                ▼
-         FastAPI Backend
-                │
-                ▼
-   Interactive Next.js Dashboard
-```
+HeatWise provides an AI-powered interactive platform that allows users to:
+
+- Visualize real-time geospatial heat data
+- Explore environmental layers
+- Predict localized surface temperatures
+- Simulate mitigation strategies such as increasing vegetation or cool roofs
+- Receive actionable recommendations for sustainable urban development
 
 ---
 
-## 📂 Project Structure
+## 🧠 Team & Approach
 
-```text
-HeatWise/
-├── frontend/
-│   ├── src/app/
-│   └── src/components/
-│       ├── Map
-│       ├── Sidebar
-│       ├── Legend
-│       └── Simulation Controls
-│
-├── backend/
-│   ├── app/
-│   │   ├── api/v1/
-│   │   ├── services/
-│   │   ├── predictor.py
-│   │   ├── raster_utils.py
-│   │   └── diagnostics.py
-│   │
-│   ├── data/
-│   │   └── india_heat_model.pkl
-│   │
-│   ├── requirements.txt
-│   └── .env
-│
-└── README.md
-```
+### Team Name:
 
----
+GeoForge
 
-# ⚙️ Local Setup
+### Team Members:
 
-## 1. Prerequisites
+- **Ananya** — **GitHub:** [Ananya0907](https://github.com/Ananya0907) | **LinkedIn:** [Ananya](https://www.linkedin.com/in/ananya-bb8020381/) | **Role:** UI/UX Design, Frontend Development & Backend Integration
 
-* Node.js 20+
-* Python 3.11+
-* Google Cloud Project with Earth Engine API enabled
-* Google Cloud Service Account JSON Key
-* Homebrew (macOS only, required for XGBoost)
+- **Dhruvika Rawat** — **GitHub:** [dhruvika05](https://github.com/dhruvika05) | **LinkedIn:** [Dhruvika Rawat](https://www.linkedin.com/in/dhruvika-rawat-821633377/) | **Role:** Backend Development, APIs, Google Earth Engine & Simulation Engine
+
+- **Manasvi Sharma** — **GitHub:** [manasvisharma2231](https://github.com/manasvisharma2231) | **LinkedIn:** [Manasvi Sharma](https://www.linkedin.com/in/manasvi-sharma-a29901366/) | **Role:** Machine Learning, Backend, Geospatial Processing & Deployment
+
+- **Palak Dasauni** — **GitHub:** [dasaunipalak](https://github.com/dasaunipalak) | **LinkedIn:** [Palak Dasauni](https://www.linkedin.com/in/palakdasauni/) | **Role:** Interactive Mapping, Layer Integration & Testing
+
+### Our Approach:
+
+Urban heat affects millions of people, yet most available solutions are either static or require specialized GIS expertise.
+
+Our goal was to build an intuitive platform where anyone could visualize urban heat conditions, understand contributing factors, and immediately test mitigation strategies.
+
+During development we faced challenges including:
+
+- Processing large satellite datasets efficiently
+- Integrating Google Earth Engine with FastAPI
+- Building smooth interactive map visualizations
+- Designing realistic heat mitigation simulations
+
+By combining machine learning with geospatial analysis, we created a platform capable of both visualization and scenario-based decision support.
 
 ---
 
-## 2. Backend Setup
+## 🛠️ Tech Stack
+
+### Core Technologies Used:
+- Frontend: React, TypeScript, Tailwind CSS, Leaflet
+- Backend: FastAPI, Python
+- Database: XGBoost, Scikit-learn, Pandas, NumPy
+- APIs: Google Earth Engine API, Open-Meteo Weather API, Open-Meteo Air Quality API,  OpenStreetMap Nominatim API
+- Geospatial: Google Earth Engine, Rasterio, GeoPandas
+- Hosting: Vercel (Frontend), Render (Backend)
+
+### Additional Technologies Used:
+
+- ✅ AI / Machine Learning
+- ✅ Cloud
+
+---
+
+## ✨ Key Features
+
+- ✅ Interactive heat map visualization using satellite imagery
+- ✅ Multiple geospatial layers including LST, NDVI, NDBI, NDWI and Land Use
+- ✅ AI-powered localized surface temperature prediction
+- ✅ Urban heat mitigation simulation (Green Cover, Cool Roofs, Development Density)
+- ✅ Dynamic recommendations for climate-resilient planning
+- ✅ Real-time weather integration
+- ✅ Interactive map interface with location search
+
+---
+
+## 📽️ Demo & Deliverables
+
+- **Demo Video Link:** [Watch on YouTube](https://www.youtube.com/watch?v=JuyiG5ePe34)
+- **Deployment Link:** [HeatWise Live](https://heat-wise-live.vercel.app/)
+- **Pitch Deck/PPT:** [View Presentation](https://docs.google.com/presentation/d/1j20lwomEpo0uILYrzzvMT1cyHY-wepGV/edit?slide=id.p6#slide=id.p6)
+---
+
+## 🧪 How to Run the Project
+
+## Requirements:
+
+- Python 3.11+
+- Node.js 20+
+- Google Earth Engine Account
+- OpenWeather API Key
+
+---
+## Local Setup :
+
+### Backend
 
 ```bash
+git clone https://github.com/dasaunipalak/HeatWise.git
+
 cd backend
 
-python3 -m venv .venv
-source .venv/bin/activate
-
-# macOS only
-brew install libomp
-
 pip install -r requirements.txt
-```
 
-### Environment Variables (`backend/.env`)
-
-```env
-GEE_PROJECT_ID=your-google-cloud-project-id
-GEE_SERVICE_ACCOUNT_EMAIL=your-service-account@project.iam.gserviceaccount.com
-GEE_SERVICE_ACCOUNT_KEY_FILE=/absolute/path/to/service-account.json
-CORS_ORIGINS=http://localhost:3000
-```
-
-### Run Backend
-
-```bash
-uvicorn app.main:app --reload --port 8000
-```
-
-Backend runs at:
-
-```
-http://127.0.0.1:8000
+uvicorn app.main:app --reload
 ```
 
 ---
 
-## 3. Frontend Setup
+###
+Frontend
 
 ```bash
 cd frontend
 
 npm install
+
 npm run dev
 ```
 
-Frontend runs at:
-
-```
-http://localhost:3000
-```
-
 ---
 
-## 🧪 Testing & Diagnostics
+### Environment Variables
 
-HeatWise includes diagnostic utilities for validating the prediction pipeline and geospatial processing.
+Create a `.env` file.
 
-| Script               | Purpose                                     |
-| -------------------- | ------------------------------------------- |
-| `test_pipeline.py`   | End-to-end pipeline validation              |
-| `inspect_model.py`   | Verify model structure and feature ordering |
-| `inspect_data.py`    | Validate raster data and extracted features |
-| `test_gee_bounds.py` | Test Earth Engine clipping                  |
-| `test_gee_stats.py`  | Validate multiscale statistics              |
+```env
+OPENWEATHER_API_KEY=YOUR_API_KEY
 
-Run any script using:
-
-```bash
-python inspect_model.py
+GEE_PROJECT=YOUR_PROJECT_ID
 ```
 
 ---
 
-## 🔒 Security
+## 🧬 Future Scope
 
-Do **not** commit the following files:
-
-* `backend/.env`
-* Google Earth Engine service account keys
-* Proprietary or custom-trained `.pkl` models
-
-Store sensitive credentials securely using environment variables.
-
----
-
-## 🚀 Future Improvements
-
-* Support additional cities and regions
-* Enhanced AI recommendations for urban planning
-* 3D heat visualization
-* Exportable simulation reports
-* Historical and seasonal heat trend analysis
-* User-defined intervention scenarios
+- Multi-city historical heat analysis
+- AI-powered urban planning assistant
+- Time-series climate projections
+- Community reporting dashboard
+- Carbon impact estimation
+- Integration with government planning portals
 
 ---
 
-## 📄 License
+## 📎 Resources / Credits
 
-This project is intended for educational and research purposes.
+### Datasets
+
+- **MODIS Land Surface Temperature (MOD11A1)** – NASA
+- **Sentinel-2 Surface Reflectance** – Copernicus Programme / European Space Agency (ESA)
+- **Dynamic World Land Cover (V1)** – Google & World Resources Institute (WRI)
+
+### APIs & Services
+
+- Google Earth Engine
+- OpenWeather API
+
+### Open Source Libraries
+
+- React
+- TypeScript
+- Tailwind CSS
+- Leaflet
+- FastAPI
+- XGBoost
+- Scikit-learn
+- Rasterio
+- GeoPandas
+- Pandas
+- NumPy
+
+### Acknowledgements
+
+We gratefully acknowledge the teams behind Google Earth Engine, NASA, the Copernicus Programme (ESA), Dynamic World, OpenWeather, and the open-source community for providing the datasets, APIs, and libraries that made this project possible.
+
+---
+
+## 🏁 Final Words
+
+HeatWise was built to make advanced geospatial analytics accessible through an intuitive, AI-powered platform.
+
+By combining satellite imagery, machine learning, and interactive simulations, we hope to support smarter urban planning decisions and contribute toward more climate-resilient and sustainable cities.
+
+Thank you for checking out HeatWise! 🌍
