@@ -4,10 +4,6 @@ from datetime import datetime, timedelta
 from functools import lru_cache
 
 
-# A single India-wide layer is reused while the user pans and zooms.
-INDIA_BOUNDS = [68.1, 6.5, 97.5, 37.5]
-
-
 LAYER_METADATA = {
     "surface_temp": {
         "vis": {
@@ -82,19 +78,19 @@ LAYER_METADATA = {
 }
 
 
-@lru_cache(maxsize=16)
-def get_gee_tile_url(layer_type: str, date_key: str):
+@lru_cache(maxsize=64)
+def get_gee_tile_url(layer_type: str, date_key: str, bounds_key: str):
     """
-    Build one cached, India-wide GEE tile URL per layer per day.
+    Build one cached Earth Engine tile URL for the active map viewport.
 
-    Leaflet then fetches normal map tiles while the user pans and zooms,
-    without repeatedly asking the backend to create a new Earth Engine map.
+    Nearby map views reuse a normalized, buffered bounds key.
     """
     if layer_type not in LAYER_METADATA:
         return None
 
     try:
-        geometry = ee.Geometry.Rectangle(INDIA_BOUNDS)
+        west, south, east, north = map(float, bounds_key.split(","))
+        geometry = ee.Geometry.Rectangle([west, south, east, north], None, False)
 
         end_date = datetime.strptime(date_key, "%Y-%m-%d")
 
@@ -105,13 +101,15 @@ def get_gee_tile_url(layer_type: str, date_key: str):
 
         if layer_type == "surface_temp":
             image = (
-            ee.ImageCollection("MODIS/061/MOD11A1")
-            .filterDate(modis_start, today)
-            .select("LST_Day_1km")
-            .median()
-            .multiply(0.02)
-            .subtract(273.15)
-        )
+                ee.ImageCollection("MODIS/061/MOD11A1")
+                .filterBounds(geometry)
+                .filterDate(modis_start, today)
+                .select("LST_Day_1km")
+                .median()
+                .multiply(0.02)
+                .subtract(273.15)
+                .clip(geometry)
+            )
 
         elif layer_type == "ndvi_veg":
             image = (

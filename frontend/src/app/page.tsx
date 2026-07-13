@@ -41,10 +41,24 @@ export default function Dashboard() {
 
     let isCurrent = true;
     async function fetchTile() {
+      const bounds = mapBounds;
+
+      if (!bounds) {
+        return;
+      }
+
       setIsLoadingTile(true);
       setTileError(null);
       try {
-        const response = await fetch(`/api/v1/maps/${activeLayer}`);
+        const params = new URLSearchParams({
+          north: bounds.north.toString(),
+          south: bounds.south.toString(),
+          east: bounds.east.toString(),
+          west: bounds.west.toString(),
+        });
+        const response = await fetch(
+          `/api/v1/maps/${activeLayer}?${params.toString()}`
+        );
 
         if (!response.ok) {
           throw new Error(`Failed to load layer: ${response.statusText || response.status}`);
@@ -76,7 +90,7 @@ export default function Dashboard() {
     return () => {
       isCurrent = false;
     };
-  }, [activeLayer]);
+  }, [activeLayer, mapBounds]);
 
   return (
     <div className="relative flex h-[100dvh] w-screen overflow-hidden">
