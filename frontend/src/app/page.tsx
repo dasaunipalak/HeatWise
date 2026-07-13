@@ -44,10 +44,6 @@ export default function Dashboard() {
       setIsLoadingTile(true);
       setTileError(null);
       try {
-        if (!mapBounds) return;
-
-        console.log("Current map bounds:", mapBounds);
-
         const response = await fetch(`/api/v1/maps/${activeLayer}`);
 
         if (!response.ok) {
