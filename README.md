@@ -112,7 +112,7 @@ By combining machine learning with geospatial analysis, we created a platform ca
 
 - **Demo Video Link:** [Watch on YouTube](https://www.youtube.com/watch?v=JuyiG5ePe34)
 - **Deployment Link:** [HeatWise Live](https://heat-wise-live.vercel.app/)
-- **Pitch Deck/PPT:** [View Presentation](https://docs.google.com/presentation/d/1j20lwomEpo0uILYrzzvMT1cyHY-wepGV/edit?slide=id.p6#slide=id.p6)
+- **Pitch Deck/PPT:** [View Presentation](https://docs.google.com/presentation/d/1j20lwomEpo0uILYrzzvMT1cyHY-wepGV/edit?slide=id.p1#slide=id.p1)
 ---
 
 ## 🧪 How to Run the Project
