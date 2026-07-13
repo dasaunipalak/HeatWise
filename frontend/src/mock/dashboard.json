@@ -34,21 +34,29 @@
     }
   ],
   "insights": {
-    "surfaceTemp": {
+    "avgSurfaceTemp": {
       "value": "41.2°C",
       "subtext": "+2.4° above avg"
     },
-    "ndviScore": {
-      "value": "0.22",
+    "avgAirTemp": {
+      "value": "35.8°C",
+      "subtext": "+1.2° above avg"
+    },
+    "greenCover": {
+      "value": "22%",
       "subtext": "Low vegetation"
     },
-    "uhiIndex": {
-      "value": "+5.1°C",
+    "builtUpArea": {
+      "value": "68%",
       "subtext": "Urban vs rural"
     },
-    "heatZones": {
-      "value": "7 active",
-      "subtext": "3 critical"
+    "waterCoverage": {
+      "value": "4%",
+      "subtext": "Minimal"
+    },
+    "dominantLandType": {
+      "value": "Urban",
+      "subtext": "Commercial"
     }
   },
   "vegetation": [

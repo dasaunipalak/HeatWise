@@ -1,23 +1,42 @@
 export interface SearchResult {
-    lat: number;
-    lon: number;
-    displayName: string;
+  lat: number;
+  lon: number;
+  displayName: string;
+}
+
+interface NominatimResult {
+  lat: string;
+  lon: string;
+  display_name: string;
 }
 
 export async function searchLocation(query: string): Promise<SearchResult[]> {
-    if (!query.trim()) return [];
+  const trimmedQuery = query.trim();
 
-    const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-            query
-        )}&countrycodes=in&featuretype=settlement&limit=5`
-    );
+  if (trimmedQuery.length < 2) return [];
 
-    const data = await response.json();
+  const params = new URLSearchParams({
+    format: "jsonv2",
+    q: trimmedQuery,
+    countrycodes: "in",
+    addressdetails: "1",
+    dedupe: "1",
+    limit: "8",
+  });
 
-    return data.map((item: any) => ({
-        lat: parseFloat(item.lat),
-        lon: parseFloat(item.lon),
-        displayName: item.display_name,
-    }));
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/search?${params.toString()}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Location search failed");
+  }
+
+  const data: NominatimResult[] = await response.json();
+
+  return data.map((item) => ({
+    lat: Number(item.lat),
+    lon: Number(item.lon),
+    displayName: item.display_name,
+  }));
 }
