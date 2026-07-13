@@ -232,7 +232,7 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
 
             {/* Recommendations Section */}
             <div className="px-4 pb-4 flex flex-col gap-3.5">
-              <h3 className="text-[12px] font-bold text-slate-800 mt-2">
+              <h3 className="text-[12px] font-bold text-slate-800 mt-2 dark:text-slate-100">
                 Recommendations for this area
               </h3>
 
@@ -248,10 +248,14 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
                     message: string;
                   }, index: number) => {
                     const styles = {
-                      critical: "bg-[#FFF6F6] border-[#FCE4E4] text-[#ED4E4E]",
-                      high: "bg-[#FFF7F4] border-[#FCE8E1] text-[#F05A28]",
-                      medium: "bg-[#F4F8FE] border-[#E1EEFD] text-[#5898F6]",
-                      low: "bg-[#F3FBF6] border-[#D8F3E1] text-[#1CC664]",
+                      critical:
+                        "bg-[#FFF6F6] border-[#FCE4E4] text-[#ED4E4E] dark:bg-red-950/45 dark:border-red-800 dark:text-red-300",
+                      high:
+                        "bg-[#FFF7F4] border-[#FCE8E1] text-[#F05A28] dark:bg-orange-950/45 dark:border-orange-800 dark:text-orange-300",
+                      medium:
+                        "bg-[#F4F8FE] border-[#E1EEFD] text-[#5898F6] dark:bg-blue-950/45 dark:border-blue-800 dark:text-blue-300",
+                      low:
+                        "bg-[#F3FBF6] border-[#D8F3E1] text-[#1CC664] dark:bg-emerald-950/45 dark:border-emerald-800 dark:text-emerald-300",
                     };
 
                     return (
@@ -263,7 +267,7 @@ export default function RightSidebar({ isOpen = true, selectedLocation, onClose 
                           {recommendation.title}
                         </div>
 
-                        <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
+                        <p className="text-[10px] text-slate-600 leading-relaxed font-medium dark:text-slate-200">
                           {recommendation.message}
                         </p>
                       </div>

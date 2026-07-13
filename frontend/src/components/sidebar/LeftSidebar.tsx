@@ -235,7 +235,7 @@ export default function LeftSidebar({
   return (
     <aside
       className={`fixed inset-y-0 left-0 md:static bg-white border-slate-200/80 h-full overflow-hidden flex flex-col pt-14 flex-shrink-0 z-40 shadow-sm select-none transition-all duration-300 ${
-        isOpen ? 'w-[250px] border-r' : 'w-0 border-r-0'
+        isOpen ? 'w-[280px] border-r' : 'w-0 border-r-0'
       }`}
     >
       {onClose && (
@@ -249,9 +249,9 @@ export default function LeftSidebar({
         </button>
       )}
 
-      <div className="p-5 flex flex-col gap-6 w-[250px] h-full overflow-y-auto">
+      <div className="p-5 flex flex-col gap-6 w-[280px] h-full overflow-y-auto">
         <div className="space-y-2">
-          <h3 className="text-[9px] font-semibold text-[#8F95A1] tracking-[0.12em] uppercase">
+          <h3 className="text-[11px] font-semibold text-slate-500 tracking-[0.1em] uppercase">
             Search Location
           </h3>
 
@@ -265,7 +265,7 @@ export default function LeftSidebar({
               ref={inputRef}
               type="text"
               placeholder="Search city, area, or landmark..."
-              className="w-full pl-9 pr-9 py-2 text-[11px] font-medium text-slate-700 bg-[#F8F9FB] border border-[#E5E7EB] rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.02)] hover:bg-slate-50 hover:border-slate-300 focus:outline-none focus:border-slate-300 focus:bg-white transition-all duration-200 placeholder:text-slate-400"
+              className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-9 text-[13px] font-medium text-slate-800 shadow-sm transition-all placeholder:text-slate-400 hover:border-slate-300 focus:border-orange-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-100"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               onKeyDown={(event) => {
@@ -347,18 +347,21 @@ export default function LeftSidebar({
 
 
         <div className="space-y-3.5">
-          <h3 className="text-[9px] font-semibold text-[#8F95A1] tracking-[0.12em] uppercase">
+          <h3 className="text-[11px] font-semibold text-slate-500 tracking-[0.1em] uppercase">
             Data Layers
           </h3>
 
-          <div className="flex flex-col gap-3.5">
+          <div className="flex flex-col gap-2">
             {data.layers.map((layer) => {
               const isLayerActive = layer.id === activeLayer;
 
               let iconComponent = null;
 
               return (
-                <div key={layer.id} className="flex items-center justify-between">
+                <div
+                    key={layer.id}
+                    className="flex items-center justify-between rounded-lg px-2 py-2 transition-colors hover:bg-slate-50"
+                  >
                   <div className="flex items-center gap-2.5">
                     {iconComponent ? (
                       <div className="w-4 h-4 flex items-center justify-center">
@@ -374,9 +377,11 @@ export default function LeftSidebar({
                     )}
 
                     <span
-                      className={`text-[11px] font-medium transition-colors ${
-                        isLayerActive ? 'text-slate-800' : 'text-slate-400'
-                      }`}
+                      className={`text-[13px] font-medium transition-colors ${
+  isLayerActive
+    ? 'text-slate-800 dark:text-slate-100'
+    : 'text-slate-400 dark:text-slate-500'
+}`}
                     >
                       {layer.name}
                     </span>
@@ -402,7 +407,7 @@ export default function LeftSidebar({
         </div>
 
         <div className="space-y-3">
-          <h3 className="text-[9px] font-semibold text-[#8F95A1] tracking-[0.12em] uppercase">
+          <h3 className="text-[11px] font-semibold text-slate-500 tracking-[0.1em] uppercase">
             Conditions
           </h3>
 
@@ -412,12 +417,12 @@ export default function LeftSidebar({
                 <div className="text-[#5898F6]">
                   <Wind size={15} />
                 </div>
-                <span className="text-[10.5px] font-medium text-[#6B7280]">
+                <span className="text-[13px] font-medium text-slate-600">
                   Wind Speed
                 </span>
               </div>
 
-              <div className="text-right font-mono text-[11px] font-bold text-slate-800">
+              <div className="text-right font-mono text-[11px] font-bold text-slate-800 dark:text-slate-100">
                 {weather ? `${weather.Wind.toFixed(0)} km/h` : '—'}{' '}
                 <span className="text-[10px]">
                   {weather ? windDirectionLabel(weather.WindDirection) : ''}
@@ -430,12 +435,12 @@ export default function LeftSidebar({
                 <div className="text-[#0EA5E9]">
                   <Droplets size={15} />
                 </div>
-                <span className="text-[10.5px] font-medium text-[#6B7280]">
+                <span className="text-[13px] font-medium text-slate-600">
                   Humidity
                 </span>
               </div>
 
-              <div className="text-right font-mono text-[11px] font-bold text-slate-800">
+              <div className="text-right font-mono text-[11px] font-bold text-slate-800 dark:text-slate-100">
                 {weather ? `${weather.Humidity.toFixed(0)}%` : '—'}
               </div>
             </div>
@@ -446,12 +451,12 @@ export default function LeftSidebar({
                   <div className="text-[#F59E0B]">
                     <Activity size={15} />
                   </div>
-                  <span className="text-[10.5px] font-medium text-[#6B7280]">
+                  <span className="text-[13px] font-medium text-slate-600">
                     AQI Index
                   </span>
                 </div>
 
-                <div className="font-mono text-[12px] font-bold text-slate-800">
+                <div className="font-mono text-[12px] font-bold text-slate-800 dark:text-slate-100">
                   {weather?.AQI ?? '—'}
                 </div>
               </div>
