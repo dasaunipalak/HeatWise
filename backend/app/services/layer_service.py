@@ -105,7 +105,7 @@ def get_gee_tile_url(layer_type: str, date_key: str):
 
         if layer_type == "surface_temp":
             image = (
-                ee.ImageCollection("MODIS/006/MOD11A1")
+                ee.ImageCollection("MODIS/061/MOD11A1")
                 .filterBounds(geometry)
                 .filterDate(modis_start, today)
                 .select("LST_Day_1km")
